@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+
+  <!-- The order the servlets are listed here is very important. -->
+  <servlet>
+    <servlet-name>LocationCoordinatesJsonServlet</servlet-name>
+    <servlet-class>org.ericbeach.location.servlets.LocationCoordinatesJsonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>LocationCoordinatesJsonServlet</servlet-name>
+    <url-pattern>/_/getLocationCoordinates</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>LocationCoordinatesJsonServlet</servlet-name>
+    <url-pattern>/_/postLocationCoordinates</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>EditAuthorizedUserServlet</servlet-name>
+    <servlet-class>org.ericbeach.location.servlets.admin.EditAuthorizedUserServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EditAuthorizedUserServlet</servlet-name>
+    <url-pattern>/admin/edit_authorized_user</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>EditAuthorizedUserServlet</servlet-name>
+    <url-pattern>/admin/_/edit_authorized_users</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>EditAuthorizedUserServlet</servlet-name>
+    <url-pattern>/admin</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>EditAuthorizedUserServlet</servlet-name>
+    <url-pattern>/admin/</url-pattern>
+  </servlet-mapping>
+
+	<servlet>
+		<servlet-name>AppEntryPoint</servlet-name>
+		<servlet-class>org.ericbeach.location.servlets.AppEntryPointServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AppEntryPoint</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+	
+  <!-- Enforces user logins for all pages -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+    <!-- A guarantee of "CONFIDENTIAL" requires SSL -->
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+
+</web-app>

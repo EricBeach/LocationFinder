@@ -53,6 +53,14 @@ public class AppEntryPointServlet extends HttpServlet {
         + "  <script src=\"/static/js/locationFinderApp.js\" type=\"text/javascript\"></script>"
         + "</head>"
         + "<body class=\"app-entry-point\">"
+
+        + "  <div id=\"full-screen-notification-container\" class=\"hidden\">"
+        + "   <div id=\"close-notification-button\" class=\"notification-close-icon\">X</div>"
+        + "   <div id=\"notification-contents-container\">"
+        + "     <div id=\"notification-contents\"></div>"
+        + "   </div>"
+        + "  </div>"
+
         + "  <header>"
         + "    <input type=\"text\" id=\"location-address\" placeholder=\"location address for "
         +     loakoutUnauthorizedUsersService.getCurrentlyLoggedInUserEmailAddress() + "\" "

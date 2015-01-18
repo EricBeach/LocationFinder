@@ -12,6 +12,7 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.SortDirection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,10 +34,13 @@ public class LocationCoordinatesDatastoreHelper {
 
   private final DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 
-  public void updateLocationCoordinatesEntity(final String userEmailAddress, final double latitude,
-      final double longitude, final int locationType) {
+  public LocationCoordinates updateLocationCoordinatesEntity(
+      final String userEmailAddress, final double latitude,
+      final double longitude, final int locationType) throws NoSuchEntityException {
+
     // Remove any existing location coordinate with the same email + type to prevent duplicates.
-    deleteLocationCoordinatesEntity(userEmailAddress, locationType);
+    Entity deletedLocationCoordinatesEntity =
+        deleteLocationCoordinatesEntity(userEmailAddress, locationType);
 
     log.info("Updating location coordinates for user " + userEmailAddress + " to "
       + " latitude, longitude: " + latitude + ", " + longitude);
@@ -50,19 +54,46 @@ public class LocationCoordinatesDatastoreHelper {
     locationEntity.setProperty(LOCATION_COORDINATES_LOCATION_TYPE_PROPERTY_NAME,
         locationType);
     datastoreService.put(locationEntity);
+
+    return new LocationCoordinates(
+        (double) deletedLocationCoordinatesEntity.getProperty(
+            LOCATION_COORDINATES_LATITUDE_PROPERTY_NAME),
+        (double) deletedLocationCoordinatesEntity.getProperty(
+            LOCATION_COORDINATES_LONGITUDE_PROPERTY_NAME),
+        (int) (long) deletedLocationCoordinatesEntity.getProperty(
+            LOCATION_COORDINATES_LOCATION_TYPE_PROPERTY_NAME),
+        (String) deletedLocationCoordinatesEntity.getProperty(
+            LOCATION_COORDINATES_USER_EMAIL_PROPERTY_NAME));
   }
 
-  public void deleteLocationCoordinatesEntity(final String userEmailAddress,
-      final int locationType) {
+  public Entity deleteLocationCoordinatesEntity(final String userEmailAddress,
+      final int locationType) throws NoSuchEntityException {
     Entity locationCoordinatesEntity =
         getLocationCoordinatesEntityByUserEmailAndLocationType(userEmailAddress, locationType);
-    if (locationCoordinatesEntity != null) {
-      datastoreService.delete(locationCoordinatesEntity.getKey());
-    }
+    log.info("Entity found for email " + userEmailAddress + " and location type "
+        + locationType + ", proceeding to delete it");
+    datastoreService.delete(locationCoordinatesEntity.getKey());
+    return locationCoordinatesEntity;
+  }
+
+  public LocationCoordinates getLocationCoordinatesByUserEmailAndLocationType(
+      final String userEmailAddress, final int locationType) throws NoSuchEntityException {
+    Entity locationCoordinates =
+        getLocationCoordinatesEntityByUserEmailAndLocationType(userEmailAddress, locationType);
+
+    return new LocationCoordinates(
+        (double) locationCoordinates.getProperty(
+            LOCATION_COORDINATES_LATITUDE_PROPERTY_NAME),
+        (double) locationCoordinates.getProperty(
+            LOCATION_COORDINATES_LONGITUDE_PROPERTY_NAME),
+        (int) (long) locationCoordinates.getProperty(
+            LOCATION_COORDINATES_LOCATION_TYPE_PROPERTY_NAME),
+        (String) locationCoordinates.getProperty(
+            LOCATION_COORDINATES_USER_EMAIL_PROPERTY_NAME));
   }
 
   private Entity getLocationCoordinatesEntityByUserEmailAndLocationType(
-      final String userEmailAddress, final int locationType) {
+      final String userEmailAddress, final int locationType) throws NoSuchEntityException {
     Filter userEmailFilter = new FilterPredicate(LOCATION_COORDINATES_USER_EMAIL_PROPERTY_NAME,
         FilterOperator.EQUAL,
         userEmailAddress);
@@ -79,14 +110,20 @@ public class LocationCoordinatesDatastoreHelper {
         datastoreService.prepare(query).asList(FetchOptions.Builder.withLimit(1));
 
     if (queryResultList.size() == 1) {
+      log.info("Entity found for email " + userEmailAddress + " and location type "
+          + locationType);
       return queryResultList.get(0);
     } else {
-      return null;
+      log.info("NO Entity found for email " + userEmailAddress + " and location type "
+          + locationType);
+      throw new NoSuchEntityException();
     }
   }
 
   public List<LocationCoordinates> getAllLocationCoordinates() {
-    Query query = new Query(LOCATION_COORDINATES_ENTITY_NAME);
+    Query query = new Query(LOCATION_COORDINATES_ENTITY_NAME)
+        .addSort(LOCATION_COORDINATES_USER_EMAIL_PROPERTY_NAME, SortDirection.ASCENDING)
+        .addSort(LOCATION_COORDINATES_LOCATION_TYPE_PROPERTY_NAME, SortDirection.ASCENDING);
     List<Entity> listOfLocationCoordinates =
         datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
 

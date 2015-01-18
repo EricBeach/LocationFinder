@@ -1,0 +1,4 @@
+<datastore-index kind="location_coordinates" ancestor="false" source="manual">
+  <property name="email" direction="asc"/>
+  <property name="location_type" direction="asc"/>
+</datastore-index>

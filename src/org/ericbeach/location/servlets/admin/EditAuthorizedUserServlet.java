@@ -61,8 +61,8 @@ public class EditAuthorizedUserServlet extends HttpServlet {
           + emailAddressToTakeActionOn + "</p>";
     } else if (req.getParameter("actionType").equals(ACITON_TYPE_REMOVE_USER)) {
       authorizedUsersDatastoreHelper.removeAuthorizedUser(emailAddressToTakeActionOn);
-      htmlContents += "Successfully removed regular access to "
-          + emailAddressToTakeActionOn;
+      htmlContents += "<p>Successfully removed regular access to "
+          + emailAddressToTakeActionOn + "</p>";
     }
     resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages() + htmlContents
         + CommonAdmin.getHtmlForBottomOfAdminPages());

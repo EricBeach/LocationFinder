@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+  <cron>
+    <url>/_/findNearbyLocationCoordinates</url>
+    <description>Mail nearby locations</description>
+    <schedule>1st day of month 08:30</schedule>
+    <timezone>America/New_York</timezone>
+  </cron>
+</cronentries>

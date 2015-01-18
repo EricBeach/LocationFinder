@@ -43,11 +43,12 @@ public class AuthorizedUserDatastoreHelper {
   }
 
   public void removeAuthorizedUser(final String userEmailAddress) {    
-    Entity authorizedUserEntity = getAuthorizedUserEntityByEmailAddress(userEmailAddress);
-    if (authorizedUserEntity != null) {
+    try {
+      Entity authorizedUserEntity = getAuthorizedUserEntityByEmailAddress(userEmailAddress);
       datastoreService.delete(authorizedUserEntity.getKey());
       log.info("Successfully deleted user " + userEmailAddress + " -- Key: "
           + authorizedUserEntity.getKey().getId());
+    } catch (NoSuchEntityException e) {
     }
 
     // TODO: Delete all LocationCoordinates entities associated with this email address.
@@ -85,15 +86,19 @@ public class AuthorizedUserDatastoreHelper {
     return listOfAuthorizedUserObjects;
   }
 
-  public boolean isEmailAddressInDatabaseOfAuthorizedUsers(final String userEmailAddress) {    
-    Entity authorizedUserEntity = getAuthorizedUserEntityByEmailAddress(userEmailAddress);
-
-    log.info("Query for user " + userEmailAddress + " returned verdict: "
-        + ((authorizedUserEntity != null) ? "access" : "no access")); 
-    return (authorizedUserEntity != null);
+  public boolean isEmailAddressInDatabaseOfAuthorizedUsers(final String userEmailAddress) {
+    try {
+      Entity authorizedUserEntity = getAuthorizedUserEntityByEmailAddress(userEmailAddress);
+      log.info("Query for user " + userEmailAddress + " returned verdict: "
+          + ((authorizedUserEntity != null) ? "access" : "no access"));
+      return true;
+    } catch (NoSuchEntityException e) {
+      return false;
+    }
   }
 
-  private Entity getAuthorizedUserEntityByEmailAddress(final String userEmailAddress) {
+  private Entity getAuthorizedUserEntityByEmailAddress(final String userEmailAddress)
+      throws NoSuchEntityException {
     Filter propertyFilter = new FilterPredicate(
         AUTHORIZED_USER_EMAIL_PROPERTY_NAME,
         FilterOperator.EQUAL,
@@ -106,7 +111,7 @@ public class AuthorizedUserDatastoreHelper {
     if (queryResultList.size() == 1) {
       return queryResultList.get(0);
     } else {
-      return null;
+      throw new NoSuchEntityException();
     }
   }
 }

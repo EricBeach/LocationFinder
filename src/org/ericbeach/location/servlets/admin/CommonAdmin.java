@@ -14,8 +14,9 @@ public class CommonAdmin {
         + "    <title>" + Configuration.WEBSITE_TITLE + " - Admin</title>"
         + "  </head>"
         + "  <body class=\"admin-page\">"
-        + "  <p><a href=\"/admin#add-user\">Add User</a> &middot; "
-        + "    <a href=\"/admin#remove-user\">Remove User</a></p>";
+        + "  <p><a href=\"/admin/user#add-user\">Add User</a> &middot; "
+        + "    <a href=\"/admin/user#remove-user\">Remove User</a> &middot; "
+        + "    <a href=\"/admin/location#add-location\">Add Location Coordinatesr</a></p>";
     return htmlContents;
   }
 

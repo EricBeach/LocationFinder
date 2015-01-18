@@ -7,6 +7,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 
   <!-- The order the servlets are listed here is very important. -->
   <servlet>
+    <servlet-name>FindNearbyLocationCoordinatesServlet</servlet-name>
+    <servlet-class>org.ericbeach.location.servlets.FindNearbyLocationCoordinatesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FindNearbyLocationCoordinatesServlet</servlet-name>
+    <url-pattern>/_cron_/findNearbyLocationCoordinates</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>LocationCoordinatesJsonServlet</servlet-name>
     <servlet-class>org.ericbeach.location.servlets.LocationCoordinatesJsonServlet</servlet-class>
   </servlet>
@@ -17,6 +26,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   <servlet-mapping>
     <servlet-name>LocationCoordinatesJsonServlet</servlet-name>
     <url-pattern>/_/postLocationCoordinates</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>AuthorizedUsersonServlet</servlet-name>
+    <servlet-class>org.ericbeach.location.servlets.AuthorizedUserJsonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AuthorizedUsersonServlet</servlet-name>
+    <url-pattern>/_/getAuthorizedUsers</url-pattern>
   </servlet-mapping>
 
   <servlet>
@@ -39,16 +57,33 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
     <servlet-name>EditAuthorizedUserServlet</servlet-name>
     <url-pattern>/admin/</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>EditAuthorizedUserServlet</servlet-name>
+    <url-pattern>/admin/user</url-pattern>
+  </servlet-mapping>
 
-	<servlet>
-		<servlet-name>AppEntryPoint</servlet-name>
-		<servlet-class>org.ericbeach.location.servlets.AppEntryPointServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>AppEntryPoint</servlet-name>
-		<url-pattern>/*</url-pattern>
-	</servlet-mapping>
-	
+  <servlet>
+    <servlet-name>EditLocationCoordinatesServlet</servlet-name>
+    <servlet-class>org.ericbeach.location.servlets.admin.EditLocationCoordinatesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EditLocationCoordinatesServlet</servlet-name>
+    <url-pattern>/admin/_/edit_location_coordinates</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>EditLocationCoordinatesServlet</servlet-name>
+    <url-pattern>/admin/location</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>AppEntryPoint</servlet-name>
+    <servlet-class>org.ericbeach.location.servlets.AppEntryPointServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+      <servlet-name>AppEntryPoint</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+
   <!-- Enforces user logins for all pages -->
   <security-constraint>
     <web-resource-collection>
@@ -61,6 +96,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+        <web-resource-name>cron</web-resource-name>
+        <url-pattern>/_cron_/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+        <role-name>admin</role-name>
+    </auth-constraint>
   </security-constraint>
 
 </web-app>

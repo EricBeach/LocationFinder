@@ -39,9 +39,10 @@ public class AuthorizedUserJsonServlet extends HttpServlet {
 
     log.info("Returning " + allAuthorizedUserObjects.size() + " authorized users");
 
-    String returnJavaScript = "[";
+    String returnJavaScript = "{";
 
     for (AuthorizedUser authorizedUser : allAuthorizedUserObjects) {
+      returnJavaScript += "\"" + authorizedUser.getEmail() + "\" : ";
       returnJavaScript += "{"
         + "\"" + AuthorizedUserDatastoreHelper.AUTHORIZED_USER_EMAIL_PROPERTY_NAME + "\" : "
         +       "\"" + authorizedUser.getEmail() + "\","
@@ -54,7 +55,7 @@ public class AuthorizedUserJsonServlet extends HttpServlet {
     if (returnJavaScript.charAt(returnJavaScript.length() - 1) == ',') {
       returnJavaScript = returnJavaScript.substring(0, returnJavaScript.length() - 1);
     }
-    returnJavaScript += "]";
+    returnJavaScript += "}";
     return returnJavaScript;
   }
 }

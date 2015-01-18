@@ -3,6 +3,7 @@ package org.ericbeach.location.servlets;
 import org.ericbeach.location.services.LockoutUnauthorizedUsersService;
 import org.ericbeach.location.services.UsersService;
 import org.ericbeach.location.datastore.LocationCoordinatesDatastoreHelper;
+import org.ericbeach.location.datastore.NoSuchEntityException;
 import org.ericbeach.location.models.LocationCoordinates;
 import org.ericbeach.location.models.LocationType;
 
@@ -49,9 +50,24 @@ public class LocationCoordinatesJsonServlet extends HttpServlet {
     log.info("Received request to add coordinateses: latitude " + latitude + ", longitude "
         + longitude + ", location type " + locationType);
 
-    locationCoordinatesHelperService.updateLocationCoordinatesEntity(
-        usersService.getCurrentUserEmailAddress(),
-        latitude, longitude, locationType);
+    resp.setContentType("application/json");
+    String newLocationCoordinatesJson = LocationCoordinates.toJson(
+        latitude, longitude, locationType, usersService.getCurrentUserEmailAddress());
+    String responseContents = "{"
+        + "\"newLocationCoordinates\": " + newLocationCoordinatesJson;
+
+    LocationCoordinates oldLocationCoordinates;
+    try {
+      oldLocationCoordinates = locationCoordinatesHelperService.updateLocationCoordinatesEntity(
+          usersService.getCurrentUserEmailAddress(),
+          latitude, longitude, locationType);
+      responseContents += ",";
+      responseContents += "\"oldLocationCoordinates\": " + oldLocationCoordinates.toJson();
+    } catch (NoSuchEntityException e) {
+    }
+
+    responseContents += "}";
+    resp.getWriter().println(responseContents);
   }
 
   private String getLocationCoordinatesJavaScript() {    
@@ -61,16 +77,7 @@ public class LocationCoordinatesJsonServlet extends HttpServlet {
 
     String returnJavaScript = "[";
     for (LocationCoordinates locationCoordinates : listOfLocationCoordinates) {
-      returnJavaScript += "{"
-      + "  \"" + LocationCoordinatesDatastoreHelper.LOCATION_COORDINATES_USER_EMAIL_PROPERTY_NAME
-      +   "\": \"" + locationCoordinates.getUserEmail() + "\","
-      + "  \"" + LocationCoordinatesDatastoreHelper.LOCATION_COORDINATES_LOCATION_TYPE_PROPERTY_NAME
-      +   "\": \"" + locationCoordinates.getLocationType() + "\","
-      + "  \"" + LocationCoordinatesDatastoreHelper.LOCATION_COORDINATES_LATITUDE_PROPERTY_NAME
-      +   "\": " + locationCoordinates.getLatitude() + ","
-      + "  \"" + LocationCoordinatesDatastoreHelper.LOCATION_COORDINATES_LONGITUDE_PROPERTY_NAME
-      +   "\": " + locationCoordinates.getLongitude() + ""
-      + "},";
+      returnJavaScript += locationCoordinates.toJson() + ",";
     }
 
     // Eliminate the final "," which isn't valid JSON. Only do this if there are elements.

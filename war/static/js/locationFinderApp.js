@@ -13,7 +13,7 @@ MapManager = function() {
    */
   this.mapOptions_ = {
     zoom: 13,
-    center: null
+    center: new google.maps.LatLng(38.8951, -77.0367)
   };
 
   /**
@@ -27,6 +27,11 @@ MapManager = function() {
   this.locationCoordinates_ = [];
 
   /**
+   * @private
+   */
+  this.authorizedUsers_ = {};
+
+  /**
    * @type {!Array.<google.maps.Marker>}
    * @private
    */
@@ -37,6 +42,12 @@ MapManager = function() {
    * @private
    */
   this.infoWindows_ = [];
+
+  /**
+   * @type {!Array.<number>}
+   * @private
+   */
+  this.currentlyOpenInfoWindowIndexes_ = [];
 };
 
 
@@ -47,7 +58,8 @@ MapManager.prototype.init = function() {
   this.getCurrentUserLocation_()
       .then(this.initializeMap_.bind(this))
       .then(this.loadLocationCoordinates_.bind(this))
-      .then(this.placeDataPointsOnMap_.bind(this));
+      .then(this.loadAuthorizedUsers_.bind(this))
+      .then(this.placeAllDataPointsOnMap_.bind(this));
 };
 
 
@@ -55,7 +67,96 @@ MapManager.prototype.init = function() {
  * @param {number} markerNum
  */
 MapManager.prototype.handleMapIconClickedFunction = function(markerNum) {
+  // Close all open windows.
+  for (var i = 0; i < this.currentlyOpenInfoWindowIndexes_.length; i++) {
+    this.infoWindows_[this.currentlyOpenInfoWindowIndexes_[i]].close();
+  }
+  this.currentlyOpenInfoWindowIndexes_ = [];
+
   this.infoWindows_[markerNum].open(this.map_, this.mapMarkers_[markerNum]);
+  this.currentlyOpenInfoWindowIndexes_.push(markerNum);
+};
+
+
+/**
+ * @param {!Object} locationCoordinatesUpdateInformation
+ */
+MapManager.prototype.updateLocationCoordinates =
+    function(locationCoordinatesUpdateInformation) {
+  if (locationCoordinatesUpdateInformation.oldLocationCoordinates &&
+      locationCoordinatesUpdateInformation.newLocationCoordinates) {
+    // Location Updated, old data needs to be updated.
+    var indexNumber = this.getIndexNumByLocationCoordinates_(
+        locationCoordinatesUpdateInformation.oldLocationCoordinates);
+    this.mapMarkers_[indexNumber].setPosition(new google.maps.LatLng(
+        locationCoordinatesUpdateInformation.newLocationCoordinates.latitude,
+        locationCoordinatesUpdateInformation.newLocationCoordinates.longitude));
+    this.locationCoordinates_[indexNumber] =
+        locationCoordinatesUpdateInformation.newLocationCoordinates;
+  }
+};
+
+
+/**
+ * The index number refers to the index of the arrays in this class holding
+ * the Map Markers, Info Windows, and Location Coordinates objects.
+ * @param {!Object} targetLocationCoordinates
+ * @return {number} index of location coordinates array
+ * @private
+ */
+MapManager.prototype.getIndexNumByLocationCoordinates_ =
+    function(targetLocationCoordinates) {
+  var minIndex = 0;
+  var maxIndex = this.locationCoordinates_.length - 1;
+  var currentIndex;
+  var currentElement;
+
+  while (minIndex <= maxIndex) {
+    currentIndex = (minIndex + maxIndex) / 2 | 0;
+    currentElement = this.locationCoordinates_[currentIndex];
+
+    if (this.compareTwoLocationCoordinatesObjects_(
+        targetLocationCoordinates, currentElement) < 0) {
+      maxIndex = currentIndex - 1;
+    } else if (this.compareTwoLocationCoordinatesObjects_(
+        targetLocationCoordinates, currentElement) > 0) {
+      minIndex = currentIndex + 1;
+    } else {
+      return currentIndex;
+    }
+  }
+  return -1;
+};
+
+
+/**
+ * Compare two location coordinates objects. Used for binary search.
+ * Compares first by email address, then by location type.
+ * @param {!Object} obj1
+ * @param {!Object} obj2
+ * @return {number} 0 if objects are equal
+ * @private
+ */
+MapManager.prototype.compareTwoLocationCoordinatesObjects_ =
+    function(obj1, obj2) {
+  var email1 = obj1.email.toLowerCase();
+  var email2 = obj2.email.toLowerCase();
+  if (email1 < email2) {
+    return -1;
+  } else if (email1 > email2) {
+    return 1;
+  } else {
+    // Email addresses are equal, so compare by location type.
+    var locationType1 = parseInt(obj1.location_type, 10);
+    var locationType2 = parseInt(obj2.location_type, 10);
+    if (locationType1 < locationType2) {
+      return -1;
+    } else if (locationType1 > locationType2) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
 };
 
 
@@ -73,7 +174,6 @@ MapManager.prototype.getCurrentUserLocation_ = function() {
         resolve();
       });
     } else {
-      this_.mapOptions_.center = new google.maps.LatLng(38.8951, -77.0367);
       resolve();
     }
   });
@@ -129,10 +229,52 @@ MapManager.prototype.loadLocationCoordinates_ = function() {
 
 
 /**
+ * @return {Promise}
  * @private
  */
-MapManager.prototype.placeDataPointsOnMap_ = function() {
-  for (var i = 0; i < this.locationCoordinates_.length; i++) {
+MapManager.prototype.loadAuthorizedUsers_ = function() {
+  var this_ = this;
+  var promise = new Promise(function(resolve, reject) {
+    var req = new XMLHttpRequest();
+    req.open('GET', '/_/getAuthorizedUsers');
+
+    req.onload = function() {
+      if (req.status == 200) {
+        this_.authorizedUsers_ = JSON.parse(req.response);
+        resolve();
+      }
+      else {
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error('Network Error'));
+    };
+
+    // Make the request
+    req.send();
+  });
+  return promise;
+};
+
+
+/**
+ * @private
+ */
+MapManager.prototype.placeAllDataPointsOnMap_ = function() {
+  this.placeDataPointsOnMap_(0, this.locationCoordinates_.length);
+};
+
+
+/**
+ * @param {number} beginIndex
+ * @param {number} endIndex
+ * @private
+ */
+MapManager.prototype.placeDataPointsOnMap_ = function(beginIndex, endIndex) {
+  for (var i = beginIndex; i < endIndex; i++) {
     var locationCoordinate = new google.maps.LatLng(
         this.locationCoordinates_[i].latitude,
         this.locationCoordinates_[i].longitude);
@@ -143,8 +285,14 @@ MapManager.prototype.placeDataPointsOnMap_ = function() {
       icon: 'static/img/red_dot.png'
     });
 
+    var displayName = '';
+    var authorizedUser =
+        this.authorizedUsers_[this.locationCoordinates_[i].email];
+    if (authorizedUser) {
+      displayName = authorizedUser.display_name + '<br>';
+    }
     this.infoWindows_[i] = new google.maps.InfoWindow({
-      content: this.locationCoordinates_[i].email
+      content: displayName + this.locationCoordinates_[i].email
     });
 
     google.maps.event.addListener(this.mapMarkers_[i], 'click',
@@ -153,23 +301,23 @@ MapManager.prototype.placeDataPointsOnMap_ = function() {
 };
 
 
-function initializeMap() {
-  var mapManager = new MapManager();
-  mapManager.init();
-}
-google.maps.event.addDomListener(window, 'load', initializeMap);
-
-
 
 /**
+ * @param {!MapManager} mapManager
  * @constructor
  */
-GuiHelper = function() {
+GuiHelper = function(mapManager) {
   /**
    * @type {!google.maps.Geocoder}
    * @private
    */
   this.geocoder_ = new google.maps.Geocoder();
+
+  /**
+   * @type {!MapManager}
+   * @private
+   */
+  this.mapManager_ = mapManager;
 };
 
 
@@ -179,6 +327,12 @@ GuiHelper = function() {
 GuiHelper.prototype.init = function() {
   document.getElementById('btn-set-location')
     .addEventListener('click', this.handleSetLocationBtnClicked_.bind(this));
+  document.getElementById('close-notification-button')
+    .addEventListener('click', function() {
+        var notificationContainerElement =
+            document.getElementById('full-screen-notification-container');
+        notificationContainerElement.className = 'hidden';
+      });
 };
 
 
@@ -187,7 +341,10 @@ GuiHelper.prototype.init = function() {
  * @private
  */
 GuiHelper.prototype.showFullScreenNotification_ = function(message) {
-  alert(message);
+  document.getElementById('notification-contents').innerHTML = message;
+  var notificationContainerElement =
+      document.getElementById('full-screen-notification-container');
+  notificationContainerElement.className = 'shown';
 };
 
 
@@ -200,10 +357,33 @@ GuiHelper.prototype.handleSetLocationBtnClicked_ = function() {
   var this_ = this;
   this.geocodeAddress_(address)
     .then(this.addLocationCoordinates_.bind(this))
-    .then(function(locationCoordinates) {
-        // New locationCoordinates successfully added on backend.
-        this_.showFullScreenNotification_
-          .call(this_, 'Successfully set address');
+    .then(function(locationCoordinatesUpdateInformation) {
+        // LocationCoordinates successfully added on backend.
+        if (locationCoordinatesUpdateInformation.oldLocationCoordinates &&
+            locationCoordinatesUpdateInformation.newLocationCoordinates) {
+          // Location Updated.
+          this_.showFullScreenNotification_
+          .call(this_, 'Successfully updated location');
+          this_.mapManager_.updateLocationCoordinates.call(
+              this_.mapManager_,
+              locationCoordinatesUpdateInformation);
+        } else if (!locationCoordinatesUpdateInformation
+                      .oldLocationCoordinates &&
+                    locationCoordinatesUpdateInformation
+                      .newLocationCoordinates) {
+          // Location Added for the first time.
+          this_.showFullScreenNotification_
+            .call(this_, 'Successfully added location. ' +
+              'Please reload to see new location.');
+        } else if (locationCoordinatesUpdateInformation
+                     .oldLocationCoordinates &&
+                   !locationCoordinatesUpdateInformation
+                     .newLocationCoordinates) {
+          // Location Removed.
+          this_.showFullScreenNotification_
+            .call(this_, 'Successfully removed location. ' +
+              'Map will update upon reloading website.');
+        }
       }, function(rejectionReason) {
         this_.showFullScreenNotification_.call(this_,
             rejectionReason);
@@ -228,7 +408,8 @@ GuiHelper.prototype.addLocationCoordinates_ = function(locationCoordinates) {
 
     req.onload = function() {
       if (req.status == 200) {
-        resolve(locationCoordinates);
+        var locationCoordinatesUpdateInformation = JSON.parse(req.response);
+        resolve(locationCoordinatesUpdateInformation);
       }
       else {
         reject(Error('Unknown Error'));
@@ -289,7 +470,10 @@ GuiHelper.prototype.geocodeAddress_ = function(address) {
 };
 
 
-document.addEventListener('DOMContentLoaded', function(event) {
-  var guiHelper = new GuiHelper();
+function initializeMap() {
+  var mapManager = new MapManager();
+  mapManager.init();
+  var guiHelper = new GuiHelper(mapManager);
   guiHelper.init();
-});
+}
+google.maps.event.addDomListener(window, 'load', initializeMap);

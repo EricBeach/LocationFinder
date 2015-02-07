@@ -115,9 +115,7 @@ main, #map-canvas {
 
 .notification-close-icon {
   cursor: pointer;
-  padding: 5px;
   position: absolute;
-  top: 0;
-  right: 0;
-  background: white;
+  top: 10px;
+  right: 15px;
 }

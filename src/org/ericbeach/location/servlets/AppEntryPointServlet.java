@@ -2,6 +2,7 @@ package org.ericbeach.location.servlets;
 
 import org.ericbeach.location.Configuration;
 import org.ericbeach.location.services.LockoutUnauthorizedUsersService;
+import org.ericbeach.location.services.UsersService;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -18,6 +19,7 @@ public class AppEntryPointServlet extends HttpServlet {
   private static final Logger log = Logger.getLogger(AppEntryPointServlet.class.getName());
   private final LockoutUnauthorizedUsersService loakoutUnauthorizedUsersService =
       new LockoutUnauthorizedUsersService();
+  private final UsersService usersService = new UsersService();
 
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -55,15 +57,18 @@ public class AppEntryPointServlet extends HttpServlet {
         + "<body class=\"app-entry-point\">"
 
         + "  <div id=\"full-screen-notification-container\" class=\"hidden\">"
-        + "   <div id=\"close-notification-button\" class=\"notification-close-icon\">X</div>"
+        
         + "   <div id=\"notification-contents-container\">"
-        + "     <div id=\"notification-contents\"></div>"
+        + "     <div id=\"notification-contents\">"
+        + "       <div id=\"close-notification-button\" class=\"notification-close-icon\">X</div>"
+        + "       <div id=\"notification-contents-text\"></div>"
+        + "     </div>"
         + "   </div>"
         + "  </div>"
 
         + "  <header>"
         + "    <input type=\"text\" id=\"location-address\" placeholder=\"location address for "
-        +     loakoutUnauthorizedUsersService.getCurrentlyLoggedInUserEmailAddress() + "\" "
+        +     usersService.getCurrentUserEmailAddress() + "\" "
         +      "size=\"43\" />"
         + "    <select id=\"location_type\" name=\"locationType\">"
         + "      <option value=\"0\">OFFICE</option></select> "

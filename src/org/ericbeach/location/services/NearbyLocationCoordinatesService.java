@@ -41,8 +41,8 @@ public class NearbyLocationCoordinatesService {
         locationCoordinatesDatastoreHelper.getAllLocationCoordinates();
     for (LocationCoordinates potentialNearbyLocation : allLocationCoordinates) {
       log.info("Comparing " + baseLocation.toJson() + " with " + potentialNearbyLocation.toJson());
-      if ((onlyIncludeLocationsOfSameType && potentialNearbyLocation.getLocationType() !=
-          baseLocation.getLocationType()) || baseLocation.equals(potentialNearbyLocation)) {
+      if ((onlyIncludeLocationsOfSameType && potentialNearbyLocation.getLocationType()
+          != baseLocation.getLocationType()) || baseLocation.equals(potentialNearbyLocation)) {
         continue;
       }
 

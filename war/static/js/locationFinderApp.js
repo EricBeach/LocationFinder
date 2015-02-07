@@ -341,7 +341,7 @@ GuiHelper.prototype.init = function() {
  * @private
  */
 GuiHelper.prototype.showFullScreenNotification_ = function(message) {
-  document.getElementById('notification-contents').innerHTML = message;
+  document.getElementById('notification-contents-text').innerHTML = message;
   var notificationContainerElement =
       document.getElementById('full-screen-notification-container');
   notificationContainerElement.className = 'shown';
@@ -441,7 +441,19 @@ GuiHelper.prototype.geocodeAddress_ = function(address) {
   var promise = new Promise(function(resolve, reject) {
     this_.geocoder_.geocode({ 'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
-        if (typeof results[0].geometry.location.lat == 'number' &&
+        // Note: At times even when you enter a very specific address, Google
+        // returns 2 or 3 possible results. The proper way to handle this is to
+        // let the user decide which address. Until then, arbitrarily setting
+        // cutoff at 4 meaning if Google returns 4 or more addresses, we tell
+        // the user to be more specific. If Google returns 3 or less, we
+        // simply use the first result.
+        if (results.length >= 4) {
+          reject('Multiple possible locations found. Please enter a more ' +
+              'specific address. For example: 1600 Pennsylvania Ave NW, ' +
+              'Washington, DC, 20500');
+        } else if (results.length == 0) {
+          reject('Unable to find any locations cooresponding to that address.');
+        } else if (typeof results[0].geometry.location.lat == 'number' &&
             typeof results[0].geometry.location.lng == 'number') {
           var coordinates = {
             latitude: results[0].geometry.location.lat,

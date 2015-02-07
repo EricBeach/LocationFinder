@@ -26,6 +26,17 @@ The development environment consists of three parts:
 
 You will need to compile your code for Java 7 by [changing the compliance level](https://developers.google.com/eclipse/docs/jdk_compliance). You can track the status of Google App Engine's support for Java 8 in [this bug](https://code.google.com/p/googleappengine/issues/detail?id=9537). Sadly Java 8 support does not look like it is coming anytime soon.
 
+___Local Setup___
+
+Within Eclipse, generate a *New Web Application Project*. 
+
+- Project name is ```location_finder```
+- Package is ```org.ericbeach.location```
+- Unselect *Use Google Web Toolkit*
+- Unselect *Generate Project Sample Code*
+
+After doing these steps, simply clone this Git repository into the root.
+
 ___Code Style___
 
 - Java - Style conforms to [Google's Java style guide](http://google-styleguide.googlecode.com/svn/trunk/javaguide.html). So, for example, line length should not exceed 100 characters, imports should be ordered such that the project's classes come first then Java classes, no tabs, etc.

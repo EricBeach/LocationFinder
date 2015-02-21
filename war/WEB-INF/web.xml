@@ -76,6 +76,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>ViewLocationCoordinatesServlet</servlet-name>
+    <servlet-class>org.ericbeach.location.servlets.admin.ViewLocationCoordinatesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ViewLocationCoordinatesServlet</servlet-name>
+    <url-pattern>/admin/view-locations</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>AppEntryPoint</servlet-name>
     <servlet-class>org.ericbeach.location.servlets.AppEntryPointServlet</servlet-class>
   </servlet>

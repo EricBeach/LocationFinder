@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet to edit authorized users list.
+ * Servlet to edit location coordinates.
  */
 @SuppressWarnings("serial")
 public class EditLocationCoordinatesServlet extends HttpServlet {

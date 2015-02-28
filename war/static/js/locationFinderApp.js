@@ -1,3 +1,10 @@
+///////////
+
+var defaultMapCenterLat = 38.8951;
+var defaultMapCenterLong = -77.0367;
+
+///////////
+
 /**
  * @fileoverview Location finder application.
  */
@@ -13,7 +20,7 @@ MapManager = function() {
    */
   this.mapOptions_ = {
     zoom: 13,
-    center: new google.maps.LatLng(38.8951, -77.0367)
+    center: new google.maps.LatLng(defaultMapCenterLat, defaultMapCenterLong)
   };
 
   /**
@@ -25,6 +32,11 @@ MapManager = function() {
    * @private
    */
   this.locationCoordinates_ = [];
+
+  /**
+   * @private
+   */
+  this.mapOfDisplayedLatitudeToLocationCoordinatesByIndex_ = {};
 
   /**
    * @private
@@ -55,8 +67,7 @@ MapManager = function() {
  * Initialize.
  */
 MapManager.prototype.init = function() {
-  this.getCurrentUserLocation_()
-      .then(this.initializeMap_.bind(this))
+  this.initializeMap_()
       .then(this.loadLocationCoordinates_.bind(this))
       .then(this.loadAuthorizedUsers_.bind(this))
       .then(this.placeAllDataPointsOnMap_.bind(this));
@@ -75,109 +86,6 @@ MapManager.prototype.handleMapIconClickedFunction = function(markerNum) {
 
   this.infoWindows_[markerNum].open(this.map_, this.mapMarkers_[markerNum]);
   this.currentlyOpenInfoWindowIndexes_.push(markerNum);
-};
-
-
-/**
- * @param {!Object} locationCoordinatesUpdateInformation
- */
-MapManager.prototype.updateLocationCoordinates =
-    function(locationCoordinatesUpdateInformation) {
-  if (locationCoordinatesUpdateInformation.oldLocationCoordinates &&
-      locationCoordinatesUpdateInformation.newLocationCoordinates) {
-    // Location Updated, old data needs to be updated.
-    var indexNumber = this.getIndexNumByLocationCoordinates_(
-        locationCoordinatesUpdateInformation.oldLocationCoordinates);
-    this.mapMarkers_[indexNumber].setPosition(new google.maps.LatLng(
-        locationCoordinatesUpdateInformation.newLocationCoordinates.latitude,
-        locationCoordinatesUpdateInformation.newLocationCoordinates.longitude));
-    this.locationCoordinates_[indexNumber] =
-        locationCoordinatesUpdateInformation.newLocationCoordinates;
-  }
-};
-
-
-/**
- * The index number refers to the index of the arrays in this class holding
- * the Map Markers, Info Windows, and Location Coordinates objects.
- * @param {!Object} targetLocationCoordinates
- * @return {number} index of location coordinates array
- * @private
- */
-MapManager.prototype.getIndexNumByLocationCoordinates_ =
-    function(targetLocationCoordinates) {
-  var minIndex = 0;
-  var maxIndex = this.locationCoordinates_.length - 1;
-  var currentIndex;
-  var currentElement;
-
-  while (minIndex <= maxIndex) {
-    currentIndex = (minIndex + maxIndex) / 2 | 0;
-    currentElement = this.locationCoordinates_[currentIndex];
-
-    if (this.compareTwoLocationCoordinatesObjects_(
-        targetLocationCoordinates, currentElement) < 0) {
-      maxIndex = currentIndex - 1;
-    } else if (this.compareTwoLocationCoordinatesObjects_(
-        targetLocationCoordinates, currentElement) > 0) {
-      minIndex = currentIndex + 1;
-    } else {
-      return currentIndex;
-    }
-  }
-  return -1;
-};
-
-
-/**
- * Compare two location coordinates objects. Used for binary search.
- * Compares first by email address, then by location type.
- * @param {!Object} obj1
- * @param {!Object} obj2
- * @return {number} 0 if objects are equal
- * @private
- */
-MapManager.prototype.compareTwoLocationCoordinatesObjects_ =
-    function(obj1, obj2) {
-  var email1 = obj1.email.toLowerCase();
-  var email2 = obj2.email.toLowerCase();
-  if (email1 < email2) {
-    return -1;
-  } else if (email1 > email2) {
-    return 1;
-  } else {
-    // Email addresses are equal, so compare by location type.
-    var locationType1 = parseInt(obj1.location_type, 10);
-    var locationType2 = parseInt(obj2.location_type, 10);
-    if (locationType1 < locationType2) {
-      return -1;
-    } else if (locationType1 > locationType2) {
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-};
-
-
-/**
- * @return {Promise}
- * @private
- */
-MapManager.prototype.getCurrentUserLocation_ = function() {
-  var this_ = this;
-  var promise = new Promise(function(resolve, reject) {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        this_.mapOptions_.center = new google.maps.LatLng(
-            position.coords.latitude, position.coords.longitude);
-        resolve();
-      });
-    } else {
-      resolve();
-    }
-  });
-  return promise;
 };
 
 
@@ -275,31 +183,74 @@ MapManager.prototype.placeAllDataPointsOnMap_ = function() {
  */
 MapManager.prototype.placeDataPointsOnMap_ = function(beginIndex, endIndex) {
   for (var i = beginIndex; i < endIndex; i++) {
-    var locationCoordinate = new google.maps.LatLng(
-        this.locationCoordinates_[i].latitude,
-        this.locationCoordinates_[i].longitude);
-
-    this.mapMarkers_[i] = new google.maps.Marker({
-      position: locationCoordinate,
-      map: this.map_,
-      icon: 'static/img/red_dot.png'
-    });
-
     var displayName = '';
     var authorizedUser =
         this.authorizedUsers_[this.locationCoordinates_[i].email];
     if (authorizedUser) {
       displayName = authorizedUser.display_name + '<br>';
     }
-    this.infoWindows_[i] = new google.maps.InfoWindow({
-      content: displayName + this.locationCoordinates_[i].email
-    });
 
-    google.maps.event.addListener(this.mapMarkers_[i], 'click',
-        this.handleMapIconClickedFunction.bind(this, i));
+    if (this.getIndexOfDuplicateLatLong_(i) > 0) {
+      var indexOfInfoWindowToUpdate = this.getIndexOfDuplicateLatLong_(i);
+
+      // Append new location info to existing map marker.
+      this.infoWindows_[indexOfInfoWindowToUpdate] =
+          new google.maps.InfoWindow({
+            content: this.infoWindows_[indexOfInfoWindowToUpdate].content +
+            '<br>' + displayName + this.locationCoordinates_[i].email
+      });
+    } else {
+      // Add new mapp marker.
+      var locationCoordinate = new google.maps.LatLng(
+          this.locationCoordinates_[i].latitude,
+          this.locationCoordinates_[i].longitude);
+
+      this.mapMarkers_[i] = new google.maps.Marker({
+        position: locationCoordinate,
+        map: this.map_,
+        icon: 'static/img/red_dot.png'
+      });
+
+      this.infoWindows_[i] = new google.maps.InfoWindow({
+        content: displayName + this.locationCoordinates_[i].email
+      });
+
+      google.maps.event.addListener(this.mapMarkers_[i], 'click',
+          this.handleMapIconClickedFunction.bind(this, i));
+
+      var coordinateHash = this.getHashOfLatLong_(
+          this.locationCoordinates_[i].latitude,
+          this.locationCoordinates_[i].longitude);
+      this.mapOfDisplayedLatitudeToLocationCoordinatesByIndex_[
+          coordinateHash] = i;
+    }
   }
 };
 
+
+/**
+ * @private
+ */
+MapManager.prototype.getIndexOfDuplicateLatLong_ = function(i) {
+  var coordinateHash = this.getHashOfLatLong_(
+      this.locationCoordinates_[i].latitude,
+      this.locationCoordinates_[i].longitude);
+  if (this.mapOfDisplayedLatitudeToLocationCoordinatesByIndex_[
+          coordinateHash] > 0) {
+    return this.mapOfDisplayedLatitudeToLocationCoordinatesByIndex_[
+        coordinateHash];
+  } else {
+    return -1;
+  }
+};
+
+
+/**
+ * @private
+ */
+MapManager.prototype.getHashOfLatLong_ = function(lat, long) {
+  return lat + " ## " + long;
+};
 
 
 /**
@@ -359,31 +310,9 @@ GuiHelper.prototype.handleSetLocationBtnClicked_ = function() {
     .then(this.addLocationCoordinates_.bind(this))
     .then(function(locationCoordinatesUpdateInformation) {
         // LocationCoordinates successfully added on backend.
-        if (locationCoordinatesUpdateInformation.oldLocationCoordinates &&
-            locationCoordinatesUpdateInformation.newLocationCoordinates) {
-          // Location Updated.
-          this_.showFullScreenNotification_
-          .call(this_, 'Successfully updated location');
-          this_.mapManager_.updateLocationCoordinates.call(
-              this_.mapManager_,
-              locationCoordinatesUpdateInformation);
-        } else if (!locationCoordinatesUpdateInformation
-                      .oldLocationCoordinates &&
-                    locationCoordinatesUpdateInformation
-                      .newLocationCoordinates) {
-          // Location Added for the first time.
-          this_.showFullScreenNotification_
-            .call(this_, 'Successfully added location. ' +
-              'Please reload to see new location.');
-        } else if (locationCoordinatesUpdateInformation
-                     .oldLocationCoordinates &&
-                   !locationCoordinatesUpdateInformation
-                     .newLocationCoordinates) {
-          // Location Removed.
-          this_.showFullScreenNotification_
-            .call(this_, 'Successfully removed location. ' +
-              'Map will update upon reloading website.');
-        }
+        this_.showFullScreenNotification_
+        .call(this_, 'Your change was saved! ' +
+          'Map will update upon reloading website.');
       }, function(rejectionReason) {
         this_.showFullScreenNotification_.call(this_,
             rejectionReason);

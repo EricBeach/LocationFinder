@@ -8,6 +8,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +33,8 @@ public abstract class LockoutUnauthorizedUsersBaseService {
 
       if (!isUserAuthorizedToViewApplication(loggedInUserEmailAddress)) {
         log.info("User " + loggedInUserEmailAddress + " is * NOT * authorized to view app");
-        resp.sendRedirect(PATH_TO_UNAUTHORIZED_PAGE);
+        resp.sendRedirect(PATH_TO_UNAUTHORIZED_PAGE + "?currentEmailAddress="
+            + URLEncoder.encode(loggedInUserEmailAddress, "UTF-8"));
         resp.flushBuffer();
       }
     } else {

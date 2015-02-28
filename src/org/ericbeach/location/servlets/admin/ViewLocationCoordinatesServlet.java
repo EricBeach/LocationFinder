@@ -40,14 +40,16 @@ public class ViewLocationCoordinatesServlet extends HttpServlet {
   }
 
   private String getDefaultViewHtml() {
+    List<LocationCoordinates> allLocationCoordinates =
+        locationCoordinatesDatastoreHelper.getAllLocationCoordinates();
+
     String htmlContents = ""
       + "  <a name=\"view-locations\"></a>"
-      + "  <h1>View Location Coordinates</h1>";
+      + "  <h1>View Location Coordinates</h1>"
+      + "  <p>A total of <b>" + allLocationCoordinates.size() + "</b> location coordinates.</p>";
 
     htmlContents += "<table>"
         + "<tr><th>Email</th><th>Latitude</th><th>Longitude</th></tr>";
-    List<LocationCoordinates> allLocationCoordinates =
-        locationCoordinatesDatastoreHelper.getAllLocationCoordinates();
     for (LocationCoordinates locationCoordinates : allLocationCoordinates) {
       htmlContents += "<tr>"
           + "<td>" + locationCoordinates.getUserEmail() + "</td>"

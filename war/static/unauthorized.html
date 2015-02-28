@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta http-equiv="Content-Security-Policy" content="default-src; script-src 'self';" />
+<script type="text/javascript" src="/static/js/unauthorized.js"></script>
 <title>Unaothorized Access</title>
 </head>
 
 <body>
-<p>Sorry, but you are not authorized.</p>
+<p>Sorry, the account you're using to sign in <span id="email-login-account"></span> is not authorized.</p>
+<p>You may be logging in with a different @gmail.com account than was authorized (e.g., you're attempting to access the site with jdoe@gmail.com when john.doe@gmail.com was authorized). Try logging out of your @gmail.com accounts and try again.</p>
 </body>
 
 </html>

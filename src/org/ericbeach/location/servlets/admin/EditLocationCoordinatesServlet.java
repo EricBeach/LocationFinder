@@ -62,7 +62,7 @@ public class EditLocationCoordinatesServlet extends HttpServlet {
     String htmlContents = "";
     try {
       if (req.getParameter("actionType").equals(ACTION_TYPE_ADD_LOCATION_COORDINATES)) {
-        locationCoordinatesDatastoreHelper.updateLocationCoordinatesEntity(
+        locationCoordinatesDatastoreHelper.addOrUpdateLocationCoordinatesEntity(
             userEmailAddress, latitude, longitude, locationType);
         htmlContents += "<p>Successfully added location coordinates for user "
             + userEmailAddress + " with location type " + locationType + "</p>";

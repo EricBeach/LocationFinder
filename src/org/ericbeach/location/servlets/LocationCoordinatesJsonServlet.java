@@ -3,7 +3,6 @@ package org.ericbeach.location.servlets;
 import org.ericbeach.location.services.LockoutUnauthorizedUsersService;
 import org.ericbeach.location.services.UsersService;
 import org.ericbeach.location.datastore.LocationCoordinatesDatastoreHelper;
-import org.ericbeach.location.datastore.NoSuchEntityException;
 import org.ericbeach.location.models.LocationCoordinates;
 import org.ericbeach.location.models.LocationType;
 
@@ -40,6 +39,9 @@ public class LocationCoordinatesJsonServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    // Note: You MUST call lockoutUnauthorizedUsers() to ensure all requests are authorized.
+    loakoutUnauthorizedUsersService.lockoutUnauthorizedUsers(req, resp);
+
     double latitude = Double.parseDouble(req.getParameter(
         LocationCoordinatesDatastoreHelper.LOCATION_COORDINATES_LATITUDE_PROPERTY_NAME));
     double longitude = Double.parseDouble(req.getParameter(
@@ -56,15 +58,9 @@ public class LocationCoordinatesJsonServlet extends HttpServlet {
     String responseContents = "{"
         + "\"newLocationCoordinates\": " + newLocationCoordinatesJson;
 
-    LocationCoordinates oldLocationCoordinates;
-    try {
-      oldLocationCoordinates = locationCoordinatesHelperService.updateLocationCoordinatesEntity(
-          usersService.getCurrentUserEmailAddress(),
-          latitude, longitude, locationType);
-      responseContents += ",";
-      responseContents += "\"oldLocationCoordinates\": " + oldLocationCoordinates.toJson();
-    } catch (NoSuchEntityException e) {
-    }
+    locationCoordinatesHelperService.addOrUpdateLocationCoordinatesEntity(
+        usersService.getCurrentUserEmailAddress(),
+        latitude, longitude, locationType);
 
     responseContents += "}";
     resp.getWriter().println(responseContents);

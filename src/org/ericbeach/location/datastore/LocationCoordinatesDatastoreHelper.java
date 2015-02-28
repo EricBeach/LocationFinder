@@ -34,13 +34,16 @@ public class LocationCoordinatesDatastoreHelper {
 
   private final DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 
-  public LocationCoordinates updateLocationCoordinatesEntity(
+  public void addOrUpdateLocationCoordinatesEntity(
       final String userEmailAddress, final double latitude,
-      final double longitude, final int locationType) throws NoSuchEntityException {
+      final double longitude, final int locationType) {
 
     // Remove any existing location coordinate with the same email + type to prevent duplicates.
-    Entity deletedLocationCoordinatesEntity =
-        deleteLocationCoordinatesEntity(userEmailAddress, locationType);
+    try {
+      deleteLocationCoordinatesEntity(userEmailAddress, locationType);
+    } catch (NoSuchEntityException exception) {
+      // An add operation is occurring (not update).
+    }
 
     log.info("Updating location coordinates for user " + userEmailAddress + " to "
       + " latitude, longitude: " + latitude + ", " + longitude);
@@ -54,16 +57,6 @@ public class LocationCoordinatesDatastoreHelper {
     locationEntity.setProperty(LOCATION_COORDINATES_LOCATION_TYPE_PROPERTY_NAME,
         locationType);
     datastoreService.put(locationEntity);
-
-    return new LocationCoordinates(
-        (double) deletedLocationCoordinatesEntity.getProperty(
-            LOCATION_COORDINATES_LATITUDE_PROPERTY_NAME),
-        (double) deletedLocationCoordinatesEntity.getProperty(
-            LOCATION_COORDINATES_LONGITUDE_PROPERTY_NAME),
-        (int) (long) deletedLocationCoordinatesEntity.getProperty(
-            LOCATION_COORDINATES_LOCATION_TYPE_PROPERTY_NAME),
-        (String) deletedLocationCoordinatesEntity.getProperty(
-            LOCATION_COORDINATES_USER_EMAIL_PROPERTY_NAME));
   }
 
   public Entity deleteLocationCoordinatesEntity(final String userEmailAddress,

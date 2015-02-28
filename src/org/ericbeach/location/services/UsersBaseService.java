@@ -20,7 +20,7 @@ public abstract class UsersBaseService {
       User user = userService.getCurrentUser();
       String loggedInUserEmailAddress = user.getEmail();
       log.info("Currently signed in user email determined to be: " + loggedInUserEmailAddress);
-      return loggedInUserEmailAddress;
+      return loggedInUserEmailAddress.toLowerCase();
     } else {
       return NOT_SIGNED_IN_USER;
     }

@@ -99,10 +99,11 @@ public class AuthorizedUserDatastoreHelper {
 
   private Entity getAuthorizedUserEntityByEmailAddress(final String userEmailAddress)
       throws NoSuchEntityException {
+    String userEmailAddressToCheck = userEmailAddress.toLowerCase();
     Filter propertyFilter = new FilterPredicate(
         AUTHORIZED_USER_EMAIL_PROPERTY_NAME,
         FilterOperator.EQUAL,
-        userEmailAddress);
+        userEmailAddressToCheck);
     Query query = new Query(AUTHORIZED_USER_ENTITY_NAME)
         .setFilter(propertyFilter);
     List<Entity> queryResultList =

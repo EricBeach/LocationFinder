@@ -1,6 +1,9 @@
 package org.ericbeach.location.servlets.admin;
 
 import org.ericbeach.location.datastore.AuthorizedUserDatastoreHelper;
+import org.ericbeach.location.datastore.LocationCoordinatesDatastoreHelper;
+import org.ericbeach.location.datastore.NoSuchEntityException;
+import org.ericbeach.location.models.LocationType;
 import org.ericbeach.location.services.LockoutUnauthorizedUsersService;
 
 import java.io.IOException;
@@ -28,6 +31,8 @@ public class EditAuthorizedUserServlet extends HttpServlet {
       new LockoutUnauthorizedUsersService();
   private final AuthorizedUserDatastoreHelper authorizedUsersDatastoreHelper =
       new AuthorizedUserDatastoreHelper();
+  private final LocationCoordinatesDatastoreHelper locationCoordinatesDatastoreHelper =
+      new LocationCoordinatesDatastoreHelper();
 
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -60,9 +65,19 @@ public class EditAuthorizedUserServlet extends HttpServlet {
       htmlContents += "<p>Successfully granted regular access to "
           + emailAddressToTakeActionOn + "</p>";
     } else if (req.getParameter("actionType").equals(ACITON_TYPE_REMOVE_USER)) {
+      // Remove authorized user and remove all data coordinates from that user.
       authorizedUsersDatastoreHelper.removeAuthorizedUser(emailAddressToTakeActionOn);
-      htmlContents += "<p>Successfully removed regular access to "
-          + emailAddressToTakeActionOn + "</p>";
+      
+      try {
+        locationCoordinatesDatastoreHelper.deleteLocationCoordinatesEntity(
+            emailAddressToTakeActionOn, LocationType.OFFICE);
+        locationCoordinatesDatastoreHelper.deleteLocationCoordinatesEntity(
+            emailAddressToTakeActionOn, LocationType.HOME);
+      } catch (NoSuchEntityException e) {
+      }
+
+      htmlContents += "<p>Successfully removed regular access for "
+          + emailAddressToTakeActionOn + " and removed all associated location coordinates.</p>";
     }
     resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages() + htmlContents
         + CommonAdmin.getHtmlForBottomOfAdminPages());
@@ -83,6 +98,7 @@ public class EditAuthorizedUserServlet extends HttpServlet {
 
       + "  <a name=\"remove-user\"></a>"
       + "  <h1>Remove User</h1>"
+      + "  <p><b>Remove User also removed associated coordinates</b></p>"
       + "  <ul>";
 
       List<String> listOfAuthorizedEmailAddresses =

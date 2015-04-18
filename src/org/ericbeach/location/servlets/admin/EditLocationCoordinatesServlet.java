@@ -87,16 +87,25 @@ public class EditLocationCoordinatesServlet extends HttpServlet {
       + "    <input type=\"email\" size=\"35\" required placeholder=\"email address to add\""
       + "        name=\"" + EMAIL_ADDRESS_FORM_FIELD_NAME + "\" />"
       + "    <input type=\"number\" size=\"30\" step=\"any\" required"
-      + "        placeholder=\"latitude\" name=\"" + LATITUDE_FORM_FIELD_NAME + "\" />"
+      + "        placeholder=\"latitude\" name=\"" + LATITUDE_FORM_FIELD_NAME + "\" id=\"latitude\" min=\"-90\" max=\"90\" />"
       + "    <input type=\"number\" size=\"30\" step=\"any\" required"
-      + "        placeholder=\"longitude\" name=\"" + LONGITUDE_FORM_FIELD_NAME + "\" />"
+      + "        placeholder=\"longitude\" name=\"" + LONGITUDE_FORM_FIELD_NAME + "\" id=\"longitude\" min=\"-180\" max=\"180\" />"
       + "    <select name=\"" + LOCATION_TYPE_FORM_FIELD_NAME + "\">"
       + "      <option value=\"0\">OFFICE</option>"
       + "    </select>"
       + "    <input type=\"hidden\" name=\"actionType\" "
       + "        value=\"" +  ACTION_TYPE_ADD_LOCATION_COORDINATES + "\">"
-      + "    <button type=\"submit\">Add</button> "
-      + "  </form>";
+      + "    <p>Email Authorized to Access App: <span id=\"isEmailValid\">no</span></p>"
+      + "    <p>Valid Coordinates: <span id=\"areCoordinatesValid\">no</span></p>"
+      + "    <p><button type=\"button\" id=\"locationCoordinatesCheckFormDataBtn\">Check Form Data</button></p>"
+      + "    <p><button type=\"submit\" id=\"locationCoordinatesAddBtn\" disabled>Add Coordinates</button></p>"
+      + "  </form>"
+      + "  <p></p>"
+      + "  <hr />"
+      + "  <p></p>"
+      + "  <p>Enter address to Geo Code: <input type=\"text\" id=\"location-address\" "
+      + "    placeholder=\"location address\" size=\"55\" /> <button id=\"geocodeBtn\">Geocode</button> </p>"
+      + "  <p id=\"notificationText\"></p>";
     return htmlContents;
   }
 }

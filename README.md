@@ -37,6 +37,8 @@ Within Eclipse, generate a *New Web Application Project*.
 
 After doing these steps, simply clone this Git repository into the root.
 
+Note: To build locally, you might need to add the Google App Engine SDK to the Java build path.
+
 ___Code Style___
 
 - Java - Style conforms to [Google's Java style guide](http://google-styleguide.googlecode.com/svn/trunk/javaguide.html). So, for example, line length should not exceed 100 characters, imports should be ordered such that the project's classes come first then Java classes, no tabs, etc.

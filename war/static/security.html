@@ -12,6 +12,8 @@
   <li>Whitelist Only Access Model - Only individuals explicitly added to the access list can view the website. Anyone not on the list will be denied access and unable to view any information.</li>
   <li>Access Authorization via Gmail Accounts - In order to access the website, one must login with an explicitly whitelisted Gmail account. Consequently, this website does not store any passwords, users do not need to remember another password, and all the authentication is handled by Google.</li>
   <li>Prevent Framing (X-Frame-Options) - <i>X-Frame-Options</i> is an HTTP header that prevents the website from being framed, which is a common security exploit.</li>
+  <li>External API Loaded via HTTPS - The website loads the external API it uses to render the map information via HTTPS, thereby preventing the injection of script content via a middle-man.</li>
+  <li>XSS Scrubbing - Only two pieces of data are sent from the client to the server (the latitude and longitude points) and both are scrubbed before being stored in the database and served back to users.</li>
 </ul>
 <p>We store the following information:</p>
 <ul>
@@ -19,5 +21,6 @@
 <li>Name - We store a user's name in order to display meaningful contact information associated with a user's office location.</li>
 <li>Latitude & Longitude of Office Location - We store this information to place a user's office location on the map.</li>
 </ul>
+<p>We use Google App Engine to host the website and store the data necessary for the website, thereby leveraging Google's security.</p>
 </body>
 </html>

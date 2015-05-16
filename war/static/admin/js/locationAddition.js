@@ -3,6 +3,7 @@
  */
 
 
+
 /**
  * @constructor
  */
@@ -51,7 +52,7 @@ LocationAddition.prototype.init = function() {
     this.isEmailValidSpan_ =
         document.getElementById('isEmailValid');
     this.areCoordinatesValidSpan_ =
-      document.getElementById('areCoordinatesValid');
+        document.getElementById('areCoordinatesValid');
     this.geocodeBtn_ = document.getElementById('geocodeBtn');
 
     this.checkFormDataElem_.addEventListener('click',
@@ -102,7 +103,7 @@ LocationAddition.prototype.loadAuthorizedUsers_ = function() {
  */
 LocationAddition.prototype.enableFormSubmission_ = function() {
   this.formSubmissionElem_.removeAttribute('disabled');
-}
+};
 
 
 /**
@@ -110,8 +111,8 @@ LocationAddition.prototype.enableFormSubmission_ = function() {
  * @private
  */
 LocationAddition.prototype.disableFormSubmission_ = function() {
-  this.formSubmissionElem_.addAttribute('disabled');
-}
+  this.formSubmissionElem_.setAttribute('disabled', 'disabled');
+};
 
 
 /**
@@ -128,18 +129,19 @@ LocationAddition.prototype.handleGeocodeBtnClicked_ = function() {
           function(rejectionReason) {
               document.getElementById('notificationText').innerHTML =
                 rejectionReason;
-              this_.disableFormSubmission_();
-       });
+              this_.disableFormSubmission_.call(this_);
+      });
 };
 
 
 /**
  * Handle geocode response.
+ * @param {Object} resp Geocode response object from Maps API.
  * @private
  */
 LocationAddition.prototype.handleGeocodeAddressResponse_ = function(resp) {
   if (resp.latitude && resp.longitude) {
-    this.enableFormSubmission_();
+    this.handleCheckFormDataElemClick_();
     document.getElementById('latitude').value = resp.latitude;
     document.getElementById('longitude').value = resp.longitude;
   } else {
@@ -157,7 +159,7 @@ LocationAddition.prototype.handleGeocodeAddressResponse_ = function(resp) {
 LocationAddition.prototype.geocodeAddress_ = function(address) {
   var this_ = this;
   var promise = new Promise(function(resolve, reject) {
-    this_.geocoder_.geocode({ 'address': address}, function(results, status) {
+    this_.geocoder_.geocode({'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
         // Note: At times even when you enter a very specific address, Google
         // returns 2 or 3 possible results. The proper way to handle this is to
@@ -165,6 +167,7 @@ LocationAddition.prototype.geocodeAddress_ = function(address) {
         // cutoff at 4 meaning if Google returns 4 or more addresses, we tell
         // the user to be more specific. If Google returns 2 or less, we
         // simply use the first result.
+        console.log(results, status);
         if (results.length >= 3) {
           reject('Multiple possible locations found. Please enter a more ' +
               'specific address. For example: 1600 Pennsylvania Ave NW, ' +
@@ -178,11 +181,11 @@ LocationAddition.prototype.geocodeAddress_ = function(address) {
             longitude: results[0].geometry.location.lng
           };
           resolve(coordinates);
-        } else if (typeof results[0].geometry.location.D == 'number' &&
-                   typeof results[0].geometry.location.k == 'number') {
+        } else if (typeof results[0].geometry.location.A == 'number' &&
+                   typeof results[0].geometry.location.F == 'number') {
           var coordinates = {
-            latitude: results[0].geometry.location.k,
-            longitude: results[0].geometry.location.D
+            latitude: results[0].geometry.location.A,
+            longitude: results[0].geometry.location.F
           };
           resolve(coordinates);
         } else {
@@ -205,10 +208,13 @@ LocationAddition.prototype.geocodeAddress_ = function(address) {
  */
 LocationAddition.prototype.handleCheckFormDataElemClick_ = function() {
   var emailAddressToAdd = document.querySelector('input[type="email"]').value;
+  var isAuthorizedUser = false;
   if (this.authorizedUsers_[emailAddressToAdd]) {
     this.isEmailValidSpan_.innerHTML = 'yes';
+    isAuthorizedUser = true;
   } else {
-    this.isEmailValidSpan_.innerHTML = 'no (email is not in list of authorized app users)';
+    this.isEmailValidSpan_.innerHTML =
+        'no (email is not in list of authorized app users)';
   }
 
   var numberElems = document.querySelectorAll('input[type="number"]');
@@ -231,6 +237,12 @@ LocationAddition.prototype.handleCheckFormDataElemClick_ = function() {
     this.areCoordinatesValidSpan_.innerHTML = 'yes';
   } else {
     this.areCoordinatesValidSpan_.innerHTML = 'no';
+  }
+
+  if (areCoordinatesValid && isAuthorizedUser) {
+    this.enableFormSubmission_();
+  } else {
+    this.disableFormSubmission_();
   }
 };
 

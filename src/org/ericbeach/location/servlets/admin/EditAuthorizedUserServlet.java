@@ -67,7 +67,7 @@ public class EditAuthorizedUserServlet extends HttpServlet {
     } else if (req.getParameter("actionType").equals(ACITON_TYPE_REMOVE_USER)) {
       // Remove authorized user and remove all data coordinates from that user.
       authorizedUsersDatastoreHelper.removeAuthorizedUser(emailAddressToTakeActionOn);
-      
+
       try {
         locationCoordinatesDatastoreHelper.deleteLocationCoordinatesEntity(
             emailAddressToTakeActionOn, LocationType.OFFICE);

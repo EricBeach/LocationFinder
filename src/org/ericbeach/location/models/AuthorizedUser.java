@@ -19,4 +19,8 @@ public class AuthorizedUser {
   public String getDisplayName() {
     return displayName;
   }
+
+  public String toJson() {
+    return "{ \"email\" : \"" + getEmail() + "\", \"displayName\" : \"" + getDisplayName() + "\"}";
+  }
 }

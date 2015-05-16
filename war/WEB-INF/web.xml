@@ -76,6 +76,19 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>BulkAddLocationCoordinatesServlet</servlet-name>
+    <servlet-class>org.ericbeach.location.servlets.admin.BulkAddLocationCoordinatesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>BulkAddLocationCoordinatesServlet</servlet-name>
+    <url-pattern>/admin/_/bulk_add_location_coordinates</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>BulkAddLocationCoordinatesServlet</servlet-name>
+    <url-pattern>/admin/bulk-add-location</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>ViewLocationCoordinatesServlet</servlet-name>
     <servlet-class>org.ericbeach.location.servlets.admin.ViewLocationCoordinatesServlet</servlet-class>
   </servlet>

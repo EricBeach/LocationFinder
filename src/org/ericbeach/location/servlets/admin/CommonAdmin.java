@@ -20,6 +20,7 @@ public class CommonAdmin {
         + "  <p><a href=\"/admin/user#add-user\">Add User</a> &middot; "
         + "    <a href=\"/admin/user#remove-user\">Remove User</a> &middot; "
         + "    <a href=\"/admin/location#add-location\">Add Location Coordinates</a> &middot; "
+        + "    <a href=\"/admin/bulk-add-location#add-location\">Bulk Add Locations</a> &middot; "
         + "    <a href=\"/admin/view-locations#view-locations\">View Location Coordinates</a></p>";
     return htmlContents;
   }

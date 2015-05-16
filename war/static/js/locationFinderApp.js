@@ -197,8 +197,8 @@ MapManager.prototype.placeDataPointsOnMap_ = function(beginIndex, endIndex) {
       this.infoWindows_[indexOfInfoWindowToUpdate] =
           new google.maps.InfoWindow({
             content: this.infoWindows_[indexOfInfoWindowToUpdate].content +
-            '<br>' + displayName + this.locationCoordinates_[i].email
-      });
+                '<br>' + displayName + this.locationCoordinates_[i].email
+          });
     } else {
       // Add new mapp marker.
       var locationCoordinate = new google.maps.LatLng(
@@ -229,6 +229,8 @@ MapManager.prototype.placeDataPointsOnMap_ = function(beginIndex, endIndex) {
 
 
 /**
+ * @param {number} i index of a duplicate lat/long coordinate.
+ * @return {number} the index of any duplicate latitude/longitude coordinate.
  * @private
  */
 MapManager.prototype.getIndexOfDuplicateLatLong_ = function(i) {
@@ -246,11 +248,15 @@ MapManager.prototype.getIndexOfDuplicateLatLong_ = function(i) {
 
 
 /**
+ * @param {number} lat Latitude.
+ * @param {number} long Longitude.
+ * @return {string} Hash of latitude and longitude coordinate.
  * @private
  */
 MapManager.prototype.getHashOfLatLong_ = function(lat, long) {
-  return lat + " ## " + long;
+  return lat + ' ## ' + long;
 };
+
 
 
 /**
@@ -312,7 +318,7 @@ GuiHelper.prototype.handleSetLocationBtnClicked_ = function() {
         // LocationCoordinates successfully added on backend.
         this_.showFullScreenNotification_
         .call(this_, 'Your change was saved! ' +
-          'Map will update upon reloading website.');
+            'Map will update upon reloading website.');
       }, function(rejectionReason) {
         this_.showFullScreenNotification_.call(this_,
             rejectionReason);
@@ -394,6 +400,13 @@ GuiHelper.prototype.geocodeAddress_ = function(address) {
           var coordinates = {
             latitude: results[0].geometry.location.k,
             longitude: results[0].geometry.location.D
+          };
+          resolve(coordinates);
+        } else if (typeof results[0].geometry.location.A == 'number' &&
+            typeof results[0].geometry.location.F == 'number') {
+          var coordinates = {
+            latitude: results[0].geometry.location.A,
+            longitude: results[0].geometry.location.F
           };
           resolve(coordinates);
         } else {

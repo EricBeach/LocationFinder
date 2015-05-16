@@ -2,6 +2,7 @@
 .project
 .settings/
 *.sh
+*.DS_STORE
 
 war/WEB-INF/lib/*
 war/WEB-INF/classes/*

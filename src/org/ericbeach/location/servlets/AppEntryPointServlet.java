@@ -52,6 +52,7 @@ public class AppEntryPointServlet extends HttpServlet {
         + "  <title>" + Configuration.WEBSITE_TITLE + "</title>"
         + "  <script src=\"https://maps.googleapis.com/maps/api/js?v=3.exp\""
         + "      type=\"text/javascript\"></script>"
+        + "  <script src=\"/static/js/geocodeHelper.js\" type=\"text/javascript\"></script>"
         + "  <script src=\"/static/js/locationFinderApp.js\" type=\"text/javascript\"></script>"
         + "</head>"
         + "<body class=\"app-entry-point\">"

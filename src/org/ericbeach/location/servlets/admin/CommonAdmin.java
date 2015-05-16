@@ -13,6 +13,7 @@ public class CommonAdmin {
         + "    <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/style.css\">"
         + "    <script src=\"https://maps.googleapis.com/maps/api/js?v=3.exp\""
         + "      type=\"text/javascript\"></script>"
+        + "    <script src=\"/static/js/geocodeHelper.js\" type=\"text/javascript\"></script>"
         + "    <script src=\"/static/admin/js/locationAddition.js\" type=\"text/javascript\"></script>"
         + "    <title>" + Configuration.WEBSITE_TITLE + " - Admin</title>"
         + "  </head>"

@@ -4,6 +4,8 @@ import org.ericbeach.location.Configuration;
 import org.ericbeach.location.services.LockoutUnauthorizedUsersService;
 import org.ericbeach.location.services.UsersService;
 
+import com.google.apphosting.api.ApiProxy.OverQuotaException;
+
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -24,11 +26,18 @@ public class AppEntryPointServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     // Note: You MUST call lockoutUnauthorizedUsers() to ensure all requests are authorized.
-    loakoutUnauthorizedUsersService.lockoutUnauthorizedUsers(req, resp);
+    try {
+      loakoutUnauthorizedUsersService.lockoutUnauthorizedUsers(req, resp);
+    } catch (OverQuotaException exception) {
+      log.warning("Over quota request");
+      resp.sendRedirect("/static/quota.html");
+      resp.flushBuffer();
+    }
     log.info("User authorized, returning app entry point HTML");
 
     // Add HTTP response header to help prevent clickjacking.
     resp.addHeader("X-Frame-Options", "SAMEORIGIN");
+
     resp.getWriter().println(getFrontendHtml());
   }
 

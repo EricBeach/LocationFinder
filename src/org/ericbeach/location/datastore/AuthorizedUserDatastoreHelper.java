@@ -29,10 +29,11 @@ public class AuthorizedUserDatastoreHelper {
 
   private final DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 
-  public void addAuthorizedUser(final String userEmailAddress, final String displayName) {
+  public void addAuthorizedUser(String userEmailAddress, final String displayName) {
+    userEmailAddress = userEmailAddress.toLowerCase();
     // Remove any user with the existing email address to prevent duplicates.
     removeAuthorizedUser(userEmailAddress);
-    
+
     Entity authorizedUserEntity = new Entity(AUTHORIZED_USER_ENTITY_NAME);
     authorizedUserEntity.setProperty(AUTHORIZED_USER_EMAIL_PROPERTY_NAME,
         userEmailAddress);
@@ -59,15 +60,15 @@ public class AuthorizedUserDatastoreHelper {
     List<Entity> listOfAuthorizedUserEntities =
         datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
 
-    List<String> listOfAdminUsers = new ArrayList<String>();
-    for (Entity adminUserEntity : listOfAuthorizedUserEntities) {
-      listOfAdminUsers.add((String) adminUserEntity.getProperty(
+    List<String> listOfAuthorizedUsers = new ArrayList<String>();
+    for (Entity authorizedUserEntity : listOfAuthorizedUserEntities) {
+      listOfAuthorizedUsers.add((String) authorizedUserEntity.getProperty(
           AUTHORIZED_USER_EMAIL_PROPERTY_NAME));
     }
 
     log.info("Successfully fetched list of authorized " + listOfAuthorizedUserEntities.size()
         + " users");
-    return listOfAdminUsers;
+    return listOfAuthorizedUsers;
   }
 
   public List<AuthorizedUser> getAllAuthorizedUserObjects() {
@@ -77,10 +78,7 @@ public class AuthorizedUserDatastoreHelper {
 
     List<AuthorizedUser> listOfAuthorizedUserObjects = new ArrayList<AuthorizedUser>();
     for (Entity authorizedUserEntity : listOfAuthorizedUserEntities) {
-      AuthorizedUser authorizedUser = new AuthorizedUser(
-          (String) authorizedUserEntity.getProperty(AUTHORIZED_USER_EMAIL_PROPERTY_NAME),
-          (String) authorizedUserEntity.getProperty(AUTHORIZED_USER_DISPLAY_NAME_PROPERTY_NAME));
-      listOfAuthorizedUserObjects.add(authorizedUser);
+      listOfAuthorizedUserObjects.add(convertAuthorizedUserEntityIntoObject(authorizedUserEntity));
     }
 
     return listOfAuthorizedUserObjects;
@@ -95,6 +93,12 @@ public class AuthorizedUserDatastoreHelper {
     } catch (NoSuchEntityException e) {
       return false;
     }
+  }
+
+  public AuthorizedUser getAuthorizedUserByEmailAddress(final String userEmailAddress)
+      throws NoSuchEntityException {
+    Entity authorizedUserEntity = getAuthorizedUserEntityByEmailAddress(userEmailAddress);
+    return convertAuthorizedUserEntityIntoObject(authorizedUserEntity);
   }
 
   private Entity getAuthorizedUserEntityByEmailAddress(final String userEmailAddress)
@@ -114,5 +118,12 @@ public class AuthorizedUserDatastoreHelper {
     } else {
       throw new NoSuchEntityException();
     }
+  }
+
+  private AuthorizedUser convertAuthorizedUserEntityIntoObject(Entity authorizedUserEntity) {
+    AuthorizedUser authorizedUser = new AuthorizedUser(
+        (String) authorizedUserEntity.getProperty(AUTHORIZED_USER_EMAIL_PROPERTY_NAME),
+        (String) authorizedUserEntity.getProperty(AUTHORIZED_USER_DISPLAY_NAME_PROPERTY_NAME));
+    return authorizedUser;
   }
 }

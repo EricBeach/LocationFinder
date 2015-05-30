@@ -43,7 +43,7 @@ public class EditAuthorizedUserServlet extends HttpServlet {
 
     // Add HTTP response header to help prevent clickjacking.
     resp.addHeader("X-Frame-Options", "SAMEORIGIN");
-    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages()
+    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages(false)
         + getDefaultViewHtml()
         + CommonAdmin.getHtmlForBottomOfAdminPages());
   }
@@ -79,7 +79,7 @@ public class EditAuthorizedUserServlet extends HttpServlet {
       htmlContents += "<p>Successfully removed regular access for "
           + emailAddressToTakeActionOn + " and removed all associated location coordinates.</p>";
     }
-    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages() + htmlContents
+    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages(false) + htmlContents
         + CommonAdmin.getHtmlForBottomOfAdminPages());
   }
 

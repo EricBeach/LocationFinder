@@ -6,15 +6,20 @@ import org.ericbeach.location.Configuration;
  * Common methods for admin pages.
  */
 public class CommonAdmin {
-  public static String getHtmlForTopOfAdminPages() {
+  public static String getHtmlForTopOfAdminPages(boolean includeGoogleMapsApiScript) {
     String htmlContents = "<!DOCTYPE html>"
         + "  <head>"
         + "    <meta name=\"viewport\" content=\"initial-scale=1.0, user-scalable=no\">"
-        + "    <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/style.css\">"
-        + "    <script src=\"https://maps.googleapis.com/maps/api/js?v=3.exp\""
-        + "      type=\"text/javascript\"></script>"
-        + "    <script src=\"/static/js/geocodeHelper.js\" type=\"text/javascript\"></script>"
-        + "    <script src=\"/static/admin/js/locationAddition.js\" type=\"text/javascript\"></script>"
+        + "    <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/style.css\">";
+    if (includeGoogleMapsApiScript) {
+      htmlContents += ""
+      + "    <script src=\"https://maps.googleapis.com/maps/api/js?v=3.exp\""
+      + "      type=\"text/javascript\"></script>"
+      + "    <script src=\"/static/js/geocodeHelper.js\" type=\"text/javascript\"></script>"
+      + "    <script src=\"/static/admin/js/locationAddition.js\" type=\"text/javascript\"></script>";
+    }
+    htmlContents += ""
+        + "    <script src=\"/static/admin/js/bulkLocationAddition.js\" type=\"text/javascript\"></script>"
         + "    <title>" + Configuration.WEBSITE_TITLE + " - Admin</title>"
         + "  </head>"
         + "  <body class=\"admin-page\">"

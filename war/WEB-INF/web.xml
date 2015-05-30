@@ -16,6 +16,19 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>QueryNearbyLocationCoordinatesServlet</servlet-name>
+    <servlet-class>org.ericbeach.location.servlets.QueryNearbyLocationCoordinatesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>QueryNearbyLocationCoordinatesServlet</servlet-name>
+    <url-pattern>/nearby</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>QueryNearbyLocationCoordinatesServlet</servlet-name>
+    <url-pattern>/queryNearbyLocationCoordinates</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>LocationCoordinatesJsonServlet</servlet-name>
     <servlet-class>org.ericbeach.location.servlets.LocationCoordinatesJsonServlet</servlet-class>
   </servlet>

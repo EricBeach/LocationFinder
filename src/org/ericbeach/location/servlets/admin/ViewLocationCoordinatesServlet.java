@@ -34,7 +34,7 @@ public class ViewLocationCoordinatesServlet extends HttpServlet {
 
     // Add HTTP response header to help prevent clickjacking.
     resp.addHeader("X-Frame-Options", "SAMEORIGIN");
-    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages()
+    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages(false)
         + getDefaultViewHtml()
         + CommonAdmin.getHtmlForBottomOfAdminPages());
   }

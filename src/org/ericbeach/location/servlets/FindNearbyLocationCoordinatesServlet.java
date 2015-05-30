@@ -2,6 +2,7 @@ package org.ericbeach.location.servlets;
 
 import org.ericbeach.location.Configuration;
 import org.ericbeach.location.datastore.AuthorizedUserDatastoreHelper;
+import org.ericbeach.location.datastore.LocationCoordinatesDatastoreHelper;
 import org.ericbeach.location.models.AuthorizedUser;
 import org.ericbeach.location.models.LocationCoordinates;
 import org.ericbeach.location.services.NearbyLocationCoordinatesService;
@@ -30,14 +31,19 @@ import javax.servlet.http.HttpServletResponse;
 public class FindNearbyLocationCoordinatesServlet extends HttpServlet {
   private static final Logger log =
       Logger.getLogger(FindNearbyLocationCoordinatesServlet.class.getName());
-  private NearbyLocationCoordinatesService findNearbyLocationCoordinatesService =
-      new NearbyLocationCoordinatesService();
   private AuthorizedUserDatastoreHelper authorizedUserDatastoreHelper =
       new AuthorizedUserDatastoreHelper();
 
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     double distanceInMilesConsideredCloseby = 0.5;
+    LocationCoordinatesDatastoreHelper locationCoordinatesDatastoreService =
+        new LocationCoordinatesDatastoreHelper();
+    List<LocationCoordinates> allLocationCoordinates =
+        locationCoordinatesDatastoreService.getAllLocationCoordinates();
+    NearbyLocationCoordinatesService findNearbyLocationCoordinatesService =
+        new NearbyLocationCoordinatesService(allLocationCoordinates);
+
     // STEP 1: Get All Authorized Users
     List<AuthorizedUser> authorizedUsers =
         authorizedUserDatastoreHelper.getAllAuthorizedUserObjects();

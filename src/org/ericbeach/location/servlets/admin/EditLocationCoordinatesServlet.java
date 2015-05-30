@@ -41,7 +41,7 @@ public class EditLocationCoordinatesServlet extends HttpServlet {
 
     // Add HTTP response header to help prevent clickjacking.
     resp.addHeader("X-Frame-Options", "SAMEORIGIN");
-    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages()
+    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages(true)
         + getDefaultViewHtml()
         + CommonAdmin.getHtmlForBottomOfAdminPages());
   }
@@ -75,7 +75,7 @@ public class EditLocationCoordinatesServlet extends HttpServlet {
     } catch (NoSuchEntityException e) {
     }
 
-    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages() + htmlContents
+    resp.getWriter().println(CommonAdmin.getHtmlForTopOfAdminPages(true) + htmlContents
         + CommonAdmin.getHtmlForBottomOfAdminPages());
   }
 

@@ -1,6 +1,5 @@
 package org.ericbeach.location.services;
 
-import org.ericbeach.location.datastore.LocationCoordinatesDatastoreHelper;
 import org.ericbeach.location.datastore.NoSuchEntityException;
 import org.ericbeach.location.models.LocationCoordinates;
 import org.ericbeach.location.models.LocationType;
@@ -15,20 +14,36 @@ import java.util.logging.Logger;
 public class NearbyLocationCoordinatesService {
   private static final Logger log =
       Logger.getLogger(NearbyLocationCoordinatesService.class.getName());
-  private LocationCoordinatesDatastoreHelper locationCoordinatesDatastoreHelper =
-      new LocationCoordinatesDatastoreHelper();
+  private final List<LocationCoordinates> allLocationCoordinates;
+
+  public NearbyLocationCoordinatesService(List<LocationCoordinates> allLocationCoordinates) {
+    this.allLocationCoordinates = allLocationCoordinates;
+  }
 
   public List<LocationCoordinates> getNearbyLocationCoordinates(String emailAddress,
       double acceptableNearbyDistanceInMiles) {
     log.info("Getting nearby location coordinates for " + emailAddress);
     try {
-      LocationCoordinates baseLocationCoordinates = locationCoordinatesDatastoreHelper
-          .getLocationCoordinatesByUserEmailAndLocationType(emailAddress, LocationType.OFFICE);
+      LocationCoordinates baseLocationCoordinates =
+          getLocationCoordinatesByUserEmailAndLocationType(emailAddress, LocationType.OFFICE);
       return getNearbyLocationCoordinates(baseLocationCoordinates, acceptableNearbyDistanceInMiles,
           true);
     } catch (NoSuchEntityException e) {
       return new ArrayList<LocationCoordinates>();
     }
+  }
+
+  private LocationCoordinates getLocationCoordinatesByUserEmailAndLocationType(
+      String emailAddress, int locationType) throws NoSuchEntityException{
+    // TODO: This is horribly inefficient, but is a hack to get around App Engine limits.
+    // Ideally, this should be a multi-map, or a map with a more complex key.
+    for (LocationCoordinates locationCoordinates : allLocationCoordinates) {
+      if (locationCoordinates.getUserEmail().equals(emailAddress)
+          && locationCoordinates.getLocationType() == locationType) {
+        return locationCoordinates;
+      }
+    }
+    throw new NoSuchEntityException();
   }
 
   private List<LocationCoordinates> getNearbyLocationCoordinates(LocationCoordinates baseLocation,
@@ -37,8 +52,6 @@ public class NearbyLocationCoordinatesService {
         + acceptableNearbyDistanceInMiles + " miles.");
     List<LocationCoordinates> nearbyLocationCoordinates = new ArrayList<LocationCoordinates>();
 
-    List<LocationCoordinates> allLocationCoordinates =
-        locationCoordinatesDatastoreHelper.getAllLocationCoordinates();
     for (LocationCoordinates potentialNearbyLocation : allLocationCoordinates) {
       log.info("Comparing " + baseLocation.toJson() + " with " + potentialNearbyLocation.toJson());
       if ((onlyIncludeLocationsOfSameType && potentialNearbyLocation.getLocationType()

@@ -35,7 +35,7 @@ public class LocationCoordinatesDatastoreHelper {
   private final DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 
   public void addOrUpdateLocationCoordinatesEntity(
-      final String userEmailAddress, final double latitude,
+      String userEmailAddress, final double latitude,
       final double longitude, final int locationType) {
 
     // Remove any existing location coordinate with the same email + type to prevent duplicates.
@@ -49,7 +49,7 @@ public class LocationCoordinatesDatastoreHelper {
       + " latitude, longitude: " + latitude + ", " + longitude);
     Entity locationEntity = new Entity(LOCATION_COORDINATES_ENTITY_NAME);
     locationEntity.setProperty(LOCATION_COORDINATES_USER_EMAIL_PROPERTY_NAME,
-        userEmailAddress);
+        userEmailAddress.toLowerCase());
     locationEntity.setProperty(LOCATION_COORDINATES_LATITUDE_PROPERTY_NAME,
         latitude);
     locationEntity.setProperty(LOCATION_COORDINATES_LONGITUDE_PROPERTY_NAME,
@@ -59,10 +59,11 @@ public class LocationCoordinatesDatastoreHelper {
     datastoreService.put(locationEntity);
   }
 
-  public Entity deleteLocationCoordinatesEntity(final String userEmailAddress,
+  public Entity deleteLocationCoordinatesEntity(String userEmailAddress,
       final int locationType) throws NoSuchEntityException {
     Entity locationCoordinatesEntity =
-        getLocationCoordinatesEntityByUserEmailAndLocationType(userEmailAddress, locationType);
+        getLocationCoordinatesEntityByUserEmailAndLocationType(
+            userEmailAddress.toLowerCase(), locationType);
     log.info("Entity found for email " + userEmailAddress + " and location type "
         + locationType + ", proceeding to delete it");
     datastoreService.delete(locationCoordinatesEntity.getKey());

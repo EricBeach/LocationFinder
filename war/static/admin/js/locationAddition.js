@@ -153,6 +153,7 @@ LocationAddition.prototype.handleGeocodeAddressResponse_ = function(resp) {
  */
 LocationAddition.prototype.handleCheckFormDataElemClick_ = function() {
   var emailAddressToAdd = document.querySelector('input[type="email"]').value;
+  emailAddressToAdd = emailAddressToAdd.toLowerCase();
   var isAuthorizedUser = false;
   if (this.authorizedUsers_[emailAddressToAdd]) {
     this.isEmailValidSpan_.innerHTML = 'yes';

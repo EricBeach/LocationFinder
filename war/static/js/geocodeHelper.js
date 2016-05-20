@@ -56,7 +56,7 @@ GeocodeHelper.prototype.getLatLongFromMapsAPIResults_ = function(results,
     reject('Unable to find any locations cooresponding to that address.');
   } else if (typeof results[0].geometry.location == 'object' &&
              Object.keys(results[0].geometry.location).length == 2) {
-    // A successful regulst exists and there are lat + long properties.
+    // A successful result exists and there are lat + long properties.
     var geocodedLocationObj = results[0].geometry.location;
     var geocodedLocationObjKeys = Object.keys(geocodedLocationObj);
 
@@ -65,6 +65,13 @@ GeocodeHelper.prototype.getLatLongFromMapsAPIResults_ = function(results,
       var coordinates = {
         latitude: geocodedLocationObj[geocodedLocationObjKeys[0]],
         longitude: geocodedLocationObj[geocodedLocationObjKeys[1]]
+      };
+      resolve(coordinates);
+    } else if (typeof geocodedLocationObj[geocodedLocationObjKeys[0]] == 'function' &&
+               typeof geocodedLocationObj[geocodedLocationObjKeys[1]] == 'function') {
+      var coordinates = {
+        latitude: geocodedLocationObj[geocodedLocationObjKeys[0]](),
+        longitude: geocodedLocationObj[geocodedLocationObjKeys[1]]()
       };
       resolve(coordinates);
     } else {

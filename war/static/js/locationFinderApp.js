@@ -1,9 +1,5 @@
-///////////
-
-var defaultMapCenterLat = 38.8951;
-var defaultMapCenterLong = -77.0367;
-
-///////////
+// Please ensure locationFinderAppConfig.js is included before this
+// file in the HTML.
 
 /**
  * @fileoverview Location finder application.
@@ -205,10 +201,15 @@ MapManager.prototype.placeDataPointsOnMap_ = function(beginIndex, endIndex) {
           this.locationCoordinates_[i].latitude,
           this.locationCoordinates_[i].longitude);
 
+      var iconUrl = 'static/img/red_dot.png';
+      if (this.locationCoordinates_[i].location_type == 1) {
+    	iconUrl = 'static/img/yellow_dot.png';
+      }
+
       this.mapMarkers_[i] = new google.maps.Marker({
         position: locationCoordinate,
         map: this.map_,
-        icon: 'static/img/red_dot.png'
+        icon: iconUrl
       });
 
       this.infoWindows_[i] = new google.maps.InfoWindow({

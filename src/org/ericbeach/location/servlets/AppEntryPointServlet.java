@@ -1,6 +1,7 @@
 package org.ericbeach.location.servlets;
 
 import org.ericbeach.location.Configuration;
+import org.ericbeach.location.models.LocationType;
 import org.ericbeach.location.services.LockoutUnauthorizedUsersService;
 import org.ericbeach.location.services.UsersService;
 
@@ -52,6 +53,10 @@ public class AppEntryPointServlet extends HttpServlet {
    * @return Frontend HTML.
    */
   private String getFrontendHtml() {
+    String keyString = "";
+    if (Configuration.GOOGLE_MAPS_API_KEY.length() > 0) {
+      keyString = "key=" + Configuration.GOOGLE_MAPS_API_KEY + "&";
+    }
     String htmlContents = "<!DOCTYPE html>"
         + "<html class=\"app-entry-point\">"
         + "<head>"
@@ -59,8 +64,9 @@ public class AppEntryPointServlet extends HttpServlet {
         + "  <meta charset=\"utf-8\">"
         + "  <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/style.css\">"
         + "  <title>" + Configuration.WEBSITE_TITLE + "</title>"
-        + "  <script src=\"https://maps.googleapis.com/maps/api/js?v=3.exp\""
+        + "  <script src=\"https://maps.googleapis.com/maps/api/js?" + keyString + "v=3.exp\""
         + "      type=\"text/javascript\"></script>"
+        + "  <script src=\"/static/js/locationFinderAppConfig.js\" type=\"text/javascript\"></script>"
         + "  <script src=\"/static/js/geocodeHelper.js\" type=\"text/javascript\"></script>"
         + "  <script src=\"/static/js/locationFinderApp.js\" type=\"text/javascript\"></script>"
         + "</head>"
@@ -81,7 +87,9 @@ public class AppEntryPointServlet extends HttpServlet {
         +     usersService.getCurrentUserEmailAddress() + "\" "
         +      "size=\"43\" />"
         + "    <select id=\"location_type\" name=\"locationType\">"
-        + "      <option value=\"0\">OFFICE</option></select> "
+        + "      <option value=\"" + LocationType.OFFICE + "\">OFFICE</option>"
+        + "      <option value=\"" + LocationType.HOME + "\">HOME</option>"
+        + "    </select> "
         + "    <button id=\"btn-set-location\">Set Location</button> "
         + "    <button class=\"hidden\">Remove</button>"
         + "  </header>"

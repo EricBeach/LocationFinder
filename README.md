@@ -35,7 +35,21 @@ Within Eclipse, generate a *New Web Application Project*.
 - Unselect *Use Google Web Toolkit*
 - Unselect *Generate Project Sample Code*
 
-After doing these steps, simply clone this Git repository into the root.
+After doing these steps, clone this Git repository into the root. To do this, you will need to
+first clone the repository into a temporary folder, delete war/ and src/ from the Eclipse-created
+folder, and then move all the Git repository into the Eclipse folder.
+
+```
+git clone https://github.com/EricBeach/LocationFinder.git
+# a folder LocationFinder now exists that encapsulates everything from GitHub
+# in the root of the Eclipse workspace, you should now see LocationFinder and
+# location_finder
+cp -r LocationFinder/* location_finder/
+
+# Copy the Git repository into the new folder
+cp -r LocationFinder/.git/ location_finder/.git/
+cp LocationFinder/.gitignore location_finder/.gitignore
+```
 
 Note: To build locally, you might need to add the Google App Engine SDK to the Java build path.
 

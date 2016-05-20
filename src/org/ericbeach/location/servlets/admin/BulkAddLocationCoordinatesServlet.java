@@ -247,6 +247,7 @@ public class BulkAddLocationCoordinatesServlet extends HttpServlet {
       + "  <pre id=\"formatDescription\">display name, email address, lat, long, location type</pre>"
       + "  </p>"
       + "  <p>Location type 0 = office address</p>"
+      + "  <p>Location type 1 = home address</p>"
       + "  <p>For example:"
       + "  <pre id=\"formatExample\">John Doe, user@domain.com, 38.900996, -77.017605, 0</pre>"
       + "  </p>"

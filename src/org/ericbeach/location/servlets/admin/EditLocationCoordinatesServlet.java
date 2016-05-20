@@ -2,6 +2,7 @@ package org.ericbeach.location.servlets.admin;
 
 import org.ericbeach.location.datastore.LocationCoordinatesDatastoreHelper;
 import org.ericbeach.location.datastore.NoSuchEntityException;
+import org.ericbeach.location.models.LocationType;
 import org.ericbeach.location.services.LockoutUnauthorizedUsersService;
 
 import java.io.IOException;
@@ -91,7 +92,8 @@ public class EditLocationCoordinatesServlet extends HttpServlet {
       + "    <input type=\"number\" size=\"30\" step=\"any\" required"
       + "        placeholder=\"longitude\" name=\"" + LONGITUDE_FORM_FIELD_NAME + "\" id=\"longitude\" min=\"-180\" max=\"180\" />"
       + "    <select name=\"" + LOCATION_TYPE_FORM_FIELD_NAME + "\">"
-      + "      <option value=\"0\">OFFICE</option>"
+      + "      <option value=\"" + LocationType.OFFICE + "\">OFFICE</option>"
+      + "      <option value=\"" + LocationType.HOME + "\">HOME</option>"
       + "    </select>"
       + "    <input type=\"hidden\" name=\"actionType\" "
       + "        value=\"" +  ACTION_TYPE_ADD_LOCATION_COORDINATES + "\">"

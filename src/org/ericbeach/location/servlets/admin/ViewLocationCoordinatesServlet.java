@@ -2,6 +2,7 @@ package org.ericbeach.location.servlets.admin;
 
 import org.ericbeach.location.datastore.LocationCoordinatesDatastoreHelper;
 import org.ericbeach.location.models.LocationCoordinates;
+import org.ericbeach.location.models.LocationType;
 import org.ericbeach.location.services.LockoutUnauthorizedUsersService;
 
 import java.io.IOException;
@@ -49,12 +50,13 @@ public class ViewLocationCoordinatesServlet extends HttpServlet {
       + "  <p>A total of <b>" + allLocationCoordinates.size() + "</b> location coordinates.</p>";
 
     htmlContents += "<table>"
-        + "<tr><th>Email</th><th>Latitude</th><th>Longitude</th></tr>";
+        + "<tr><th>Email</th><th>Latitude</th><th>Longitude</th><th>Type</th></tr>";
     for (LocationCoordinates locationCoordinates : allLocationCoordinates) {
       htmlContents += "<tr>"
           + "<td>" + locationCoordinates.getUserEmail() + "</td>"
           + "<td>" + locationCoordinates.getLatitude() + "</td>"
           + "<td>" + locationCoordinates.getLongitude() + "</td>"
+          + "<td>" + LocationType.parseLocationType(locationCoordinates.getLocationType()) + "</td>"
           + "</tr>";
     }
     htmlContents += "</table>";

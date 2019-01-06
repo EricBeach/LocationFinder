@@ -122,6 +122,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
   <!-- Enforces user logins for all pages -->
   <security-constraint>
     <web-resource-collection>
+      <web-resource-name>all</web-resource-name>
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>

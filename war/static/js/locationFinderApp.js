@@ -94,6 +94,8 @@ MapManager.prototype.initializeMap_ = function() {
   var promise = new Promise(function(resolve, reject) {
     this_.map_ = new google.maps.Map(
         document.getElementById('map-canvas'), this_.mapOptions_);
+    this_.map_.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(
+        document.getElementById('custom-legend'));
     resolve();
   });
   return promise;

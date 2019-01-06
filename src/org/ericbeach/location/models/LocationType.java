@@ -16,4 +16,13 @@ public class LocationType {
     // Default to OFFICE.
     return OFFICE;
   }
+
+  public static String parseLocationType(int locationType) {
+    if (locationType == OFFICE) {
+      return "Office";
+    } else if (locationType == HOME) {
+      return "Home";
+    }
+    return "";
+  }
 }

@@ -102,6 +102,11 @@ main, #map-canvas {
   display: block;
 }
 
+main #custom-legend {
+  background: white;
+  padding: 10px;
+}
+
 #full-screen-notification-container {
   background: rgba(0,0,0,0.6);
   height:100%;

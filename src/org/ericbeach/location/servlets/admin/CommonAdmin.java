@@ -7,13 +7,17 @@ import org.ericbeach.location.Configuration;
  */
 public class CommonAdmin {
   public static String getHtmlForTopOfAdminPages(boolean includeGoogleMapsApiScript) {
+    String keyString = "";
+    if (Configuration.GOOGLE_MAPS_API_KEY.length() > 0) {
+        keyString = "key=" + Configuration.GOOGLE_MAPS_API_KEY + "&";
+    }
     String htmlContents = "<!DOCTYPE html>"
         + "  <head>"
         + "    <meta name=\"viewport\" content=\"initial-scale=1.0, user-scalable=no\">"
         + "    <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/style.css\">";
     if (includeGoogleMapsApiScript) {
       htmlContents += ""
-      + "    <script src=\"https://maps.googleapis.com/maps/api/js?v=3.exp\""
+      + "    <script src=\"https://maps.googleapis.com/maps/api/js?" + keyString + "v=3\""
       + "      type=\"text/javascript\"></script>"
       + "    <script src=\"/static/js/geocodeHelper.js\" type=\"text/javascript\"></script>"
       + "    <script src=\"/static/admin/js/locationAddition.js\" type=\"text/javascript\"></script>";

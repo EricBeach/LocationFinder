@@ -20,11 +20,12 @@ ___Development Environment___
 
 The development environment consists of three parts:
 
-- [Eclipse](https://eclipse.org/) - While you don't technically need this, it integrates very nicely with the Google Plugin for Eclipse, thereby making development much easier than via command-line or another IDE.
-- [Google Plugin for Eclipse](https://developers.google.com/eclipse/) - This plugin enables you to run the application locally, deploy to App engine in one-click, and other benefits.
-- [Google App Engine SDK](https://cloud.google.com/appengine/downloads) - Download the SDK for Java.
+- [Eclipse](https://eclipse.org/) - While you don't technically need this, it integrates very nicely with the Google Plugin for Eclipse, thereby making development much easier than via command-line or another IDE. Google Cloud Tools for Eclipse requires Eclipse 4.6 or higher.
+- [Google Cloud Tools for Eclipse](https://cloud.google.com/eclipse/docs/)
+- [Google Cloud SDK](https://cloud.google.com/sdk/)
 
-You will need to compile your code for Java 7 by [changing the compliance level](https://developers.google.com/eclipse/docs/jdk_compliance). You can track the status of Google App Engine's support for Java 8 in [this bug](https://code.google.com/p/googleappengine/issues/detail?id=9537). Sadly Java 8 support does not look like it is coming anytime soon.
+
+In the Eclipse project, under Properties, under Java Build Path, you need to make sure that the Google Cloud Platform Libraries is included. Further, within Google Cloud Platform Libraries, you need to make sure that "App Engine API" is selected (under App Engine Standard Libraries) and "Cloud Datastore" is selected (under Cloud Datastore).
 
 ___Local Setup___
 
